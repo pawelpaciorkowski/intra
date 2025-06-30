@@ -1,0 +1,6 @@
+# config/packages/fos_ckeditor.yaml
+fos_ck_editor:
+  configs:
+    default:
+      # Ta linia pozwoli na używanie znacznika <script> w edytorze.
+      extraAllowedContent: 'script(*)[*]{*}'
