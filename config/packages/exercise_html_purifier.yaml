@@ -1,44 +1,36 @@
 exercise_html_purifier:
   default_cache_serializer_path: '%kernel.cache_dir%/htmlpurifier'
-
-  default:
-    config:
-      HTML.SafeIframe: true
-      URI.SafeIframeRegexp: '#^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|alab\.com\.pl|alab\.pl|alablaboratoria\.pl|skk\.erecruiter\.pl)#'
-      HTML.AllowedAttributes: iframe.src, iframe.width, iframe.height, iframe.frameborder, iframe.allowfullscreen, iframe.allow, div.class, div.style, form.action, form.method, form.enctype, form.class, p.class, p.style, span.class, span.style, a.href, a.target, a.rel, a.class, a.style, img.src, img.alt, img.title, img.width, img.height, img.class, img.style, ul.class, ul.style, ol.class, ol.style, li.class, li.style, table.class, table.border, table.cellpadding, table.cellspacing, table.style, tr.class, tr.style, td.class, td.colspan, td.rowspan, td.style, th.class, th.style, h1.class, h1.style, h2.class, h2.style, h3.class, h3.style, h4.class, h4.style, h5.class, h5.style, h6.class, h6.style, video.controls, video.width, video.height, video.class, video.style, video.autoplay, video.muted, video.loop, source.src, source.type, script.src, script.type
-      HTML.Trusted: true
-    elements:
-      video:
-        - Block
-        - 'Optional: (source, Flow) | (Flow, source) | Flow'
-        - Common
-        - src: URI
-          type: Text
-          width: Length
-          height: Length
-          poster: URI
-          preload: 'Enum#auto,metadata,none'
-          controls: Bool
-          autoplay: Text
-          loop: Text
-          muted: Text
-      source:
-        - Block
-        - Flow
-        - Common
-        - { src: URI, type: Text }
-        - [style]
-      script:
-        - Block
-        - Flow
-        - Common
-        - { src: URI, type: Text }
-    attributes:
-      iframe:
-        allowfullscreen: Bool
-        allow: Text
-
+  
   html_profiles:
+    # Profil domyślny, używany przez CMS, z dodaną obsługą skryptu.
+    default:
+      config:
+        HTML.SafeIframe: true
+        URI.SafeIframeRegexp: '#^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|alab\.com\.pl|alab\.pl|alablaboratoria\.pl|skk\.erecruiter\.pl)#'
+        HTML.AllowedAttributes: iframe.src, iframe.width, iframe.height, iframe.frameborder, iframe.allowfullscreen, iframe.allow, div.class, div.style, form.action, form.method, form.enctype, form.class, p.class, p.style, span.class, span.style, a.href, a.target, a.rel, a.class, a.style, img.src, img.alt, img.title, img.width, img.height, img.class, img.style, ul.class, ul.style, ol.class, ol.style, li.class, li.style, table.class, table.border, table.cellpadding, table.cellspacing, table.style, tr.class, tr.style, td.class, td.colspan, td.rowspan, td.style, th.class, th.style, h1.class, h1.style, h2.class, h2.style, h3.class, h3.style, h4.class, h4.style, h5.class, h5.style, h6.class, h6.style, video.controls, video.width, video.height, video.class, video.style, video.autoplay, video.muted, video.loop, source.src, source.type, script.src, script.type
+        HTML.Trusted: true
+      elements:
+        video:
+          - Block
+          - 'Optional: (source, Flow) | (Flow, source) | Flow'
+          - Common
+          - { src: URI, type: Text, width: Length, height: Length, poster: URI, preload: 'Enum#auto,metadata,none', controls: Bool, autoplay: Text, loop: Text, muted: Text }
+        source:
+          - Block
+          - Flow
+          - Common
+          - { src: URI, type: Text }
+          - [style]
+        script:
+          - Block
+          - Flow
+          - Common
+          - { src: URI, type: Text }
+      attributes:
+        iframe:
+          allowfullscreen: Bool
+          allow: Text
+
     iframe:
       config:
         HTML.SafeIframe: true
@@ -50,16 +42,7 @@ exercise_html_purifier:
           - Block
           - 'Optional: (source, Flow) | (Flow, source) | Flow'
           - Common
-          - src: URI
-            type: Text
-            width: Length
-            height: Length
-            poster: URI
-            preload: 'Enum#auto,metadata,none'
-            controls: Bool
-            autoplay: Text
-            loop: Text
-            muted: Text
+          - { src: URI, type: Text, width: Length, height: Length, poster: URI, preload: 'Enum#auto,metadata,none', controls: Bool, autoplay: Text, loop: Text, muted: Text }
         source:
           - Block
           - Flow
