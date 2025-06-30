@@ -1,0 +1,42 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+    <div class="page-header">
+        <div class="container">
+            <h1>
+                {{ category.name }}
+            </h1>
+        </div>
+    </div>
+
+    {% if html is defined %}
+        {{ html|raw }}
+    {% else %}
+        {% if category.isShowCategories and category.children %}
+            <p class="alert alert-info">
+                Podkategorie:
+                {% for category in category.children %}
+                    {% if category.isActive %}
+                        <a href="{{ url('category-view', {'id': category.id}) }}">{{ category.name }}</a>{% if not loop.last %}, {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
+
+        {{ category.description|raw }}
+
+        {% if pages %}
+            {% for page in pages %}
+                <h1><a href="{{ url('page-view', {'id': page.id}) }}">{{ page.title|raw }}</a></h1>
+                {{ page.shortText|raw }}
+                <p>
+                    <a href="{{ url('page-view', {'id': page.id}) }}">Czytaj więcej...</a>
+                </p>
+            {% endfor %}
+        {% else %}
+            <p class="alert alert-warning">W wybranej kategorii nie ma żadnych artykułów.</p>
+        {% endif %}
+    {% endif %}
+
+{% endblock %}

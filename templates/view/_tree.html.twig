@@ -1,0 +1,55 @@
+{% set depth = 0 %}
+
+{% if tags is defined and tags|length > 0%}
+<div class="tags">
+    {% for id,tag in tags %}
+        <a href="#" class="tag tag-default" data-id="{{ tag.id }}">{{ tag.name }} <small>({{ tag.count }})</small></a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<ul class="files">
+    {% for row in rows %}
+        {% if row.depth > depth %}
+            {% for i in depth..(row.depth - 1) %}
+                <ul class="folder-content depth-{{ i + 1 }}">
+            {% endfor %}
+        {% elseif row.depth < depth %}
+            {% for i in row.depth..(depth - 1) %}
+                </li></ul>
+            {% endfor %}
+        {% elseif not loop.first %}
+            </li>
+        {% endif %}
+
+        <li class="depth-{{ row.depth }}">
+            <span class="far fa-fw fa-folder"></span>
+            <span class="folder-text">{{ row.name }}</span>
+
+            {% if row.files is not empty %}
+                <div class="file">
+                    {% for file in row.files %}
+                        {% if file.isActive and file.currentFileOriginalFilename %}
+                            {% set tags = [] %}
+                            {% for tag in file.tags %}
+                                {% set tags = tags|merge([tag.id]) %}
+                            {% endfor %}
+                            <div class="file-description" data-tags="{{ tags|join(',') }}">
+                                <p>
+                                    <span class="far fa-fw fa-file"></span>
+                                    <a href="{{ path(pathDownload, {'id': file.id}) }}">{{ file.name }}</a>
+                                </p>
+                                {{ file.description|raw }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        {% set depth = row.depth %}
+    {% endfor %}
+
+    {% for i in 1..depth %}
+        </li></ul>
+    {% endfor %}
+</ul>

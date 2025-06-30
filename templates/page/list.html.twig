@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/modal-delete.html.twig' with {'element': 'strona'} %}
+    {% include 'partials/list-header.html.twig' with {'action': 'page-create'} %}
+
+    {% if rows.count %}
+
+        {% set class = 'page' %}
+        {% set columns = {
+            'page-id': {'name': 'ID', 'sort': true, 'filter': true},
+            'title': {'name': 'Tytuł', 'sort': true, 'filter': true},
+            'categories': {'name': 'Kategorie', 'sort': false, 'filter': true},
+            'published-at': {'name': 'Data publikacji', 'sort': true, 'filter': true},
+        } %}
+
+        {% set isFilterBarVisible = false %}
+        {% for key,text in columns %}
+            {% if app.request.get(key) != '' %}
+                {% set isFilterBarVisible = true %}
+            {% endif %}
+        {% endfor %}
+
+        <form method="get" action="">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover table-stick" data-table="page">
+                        <thead>
+                        <tr>
+                            <th class="mr-thin-column">
+                                <div class="btn-group dropdown">
+                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                            data-toggle="dropdown">
+                                        <span class="fas fa-fw fa-columns"></span>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-default btn-xs mr-filter-button {% if isFilterBarVisible %}active{% endif %}"
+                                            data-toggle="button">
+                                        <span class="fas fa-fw fa-filter"></span>
+                                    </button>
+                                    <ul class="dropdown-menu pull-left dropdown-column-select" role="menu">
+                                        <li>
+                                            {% for key,params in columns %}
+                                                <div class="switch switch-xs">
+                                                    <input type="checkbox" id="checkbox-{{ loop.index }}" {{ user_table_column_visible('checkbox', true, class, key)|raw }}>
+                                                    <label for="checkbox-{{ loop.index }}">
+                                                        {{ params.name }}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </th>
+                            {% for key,params in columns %}
+                                {% if params.sort %}
+                                    <th {{ user_table_column_visible('column', true, class, key)|raw }}>{{ user_table_column_order(params.name, class, key) }}</th>
+                                {% else %}
+                                    <th {{ user_table_column_visible('column', true, class, key)|raw }}>{{ params.name }}</th>
+                                {% endif %}
+                            {% endfor %}
+                            <th></th>
+                        </tr>
+                        <tr class="mr-filter-row {% if not isFilterBarVisible %}mr-hidden{% endif %}">
+                            <td></td>
+                            {% for key,params in columns %}
+                                {% if params.filter %}
+                                    <td {{ user_table_column_visible('column', true, class, key)|raw }}><input
+                                                type="text" class="form-control" name="{{ key }}" placeholder=""
+                                                value="{{ app.request.get(key) }}"></td>
+                                {% else %}
+                                    <td {{ user_table_column_visible('column', true, class, key)|raw }}></td>
+                                {% endif %}
+                            {% endfor %}
+                            <td>
+                                <div class="btn-toolbar">
+                                    <button class="btn btn-default btn-xs" data-toggle="tooltip"
+                                            title="przefiltruj wg kryteriów">
+                                        <span class="fas fa-fw fa-filter"></span></button>
+                                    <button class="btn btn-default btn-xs mr-filter-reset" data-toggle="tooltip"
+                                            title="wyczyść wszystkie filtry">
+                                        <span class="fas fa-fw fa-trash-alt"></span></button>
+                                </div>
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in rows %}
+                            <tr data-name="{{ row.title }}" data-delete-action="{{ path('page-delete', {'id': row.id}) }}" data-copy-action="{{ path('page-copy', {'id': row.id}) }}">
+                                <td class="mr-thin-column">{{ loop.index + (setting.getSetting('rows_per_page', app.user) * (app.request.get('page') - 1)) }}</td>
+                                <td {{ user_table_column_visible('column', true, class, 'page-id')|raw }}>
+                                    <a href="{{ path('page-update', {'id': row.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>{{ row.id }}</a>
+                                </td>
+                                <td {{ user_table_column_visible('column', true, class, 'title')|raw }}>
+                                    <a href="{{ path('page-update', {'id': row.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>{{ row.title }}</a>
+                                </td>
+                                <td>
+                                    {% for category in row.categories %}
+                                        <a href="{{ path('category-update', {'id': category.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>{{ category.name }}</a>
+                                        {% if not loop.last %}<span {% if not row.isActive %} class="inactive"{% endif %}>, </span>{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td {{ user_table_column_visible('column', true, class, 'published-at')|raw }}>
+                                    <a href="{{ path('page-update', {'id': row.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>{{ row.publishedAt|format_datetime(null, null, 'Y-MM-dd HH:mm') }}</a>
+                                </td>
+                                <td class="action-buttons">
+                                    <a href="{{ path('page-update', {'id': row.id}) }}" class="btn btn-primary btn-xs" data-toggle="tooltip" title="<strong>Utworzono</strong>: {{ row.createdAt|format_datetime('short') }}<br><strong>Zmieniono</strong>: {{ row.updatedAt|format_datetime('short') }}"><span class="fas fa-fw fa-pencil-alt"></span></a>
+                                    <a href="{{ path('page-file', {'id': row.id}) }}" class="btn btn-warning btn-xs inline-xs-margin-left" data-toggle="tooltip" title="Zarządzaj plikami"><span class="fas fa-fw fa-file-alt"></span></a>
+                                    <button class="btn btn-danger btn-xs row-delete inline-xs-margin-left" data-title="Delete" data-toggle="tooltip" title="Usuń">
+                                        <span class="fas fa-fw fa-trash-alt"></span>
+                                    </button>
+                                    <button class="btn btn-default btn-xs row-copy inline-xs-margin-left" data-title="Copy" data-toggle="tooltip" title="Utwórz kopię">
+                                        Kopia
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+
+        {% include 'partials/pagination.html.twig' %}
+
+        <div class="modal fade" id="copy" tabindex="-1" role="dialog" aria-labelledby="copy" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title custom_align" id="Heading">Kopia strony</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+                            <span class="fas fa-fw fa-question-circle"></span>
+                            Czy na pewno chcesz skopiować <span class="subject">stronę</span>&nbsp;<strong class="name"></strong>?<br>
+                            <br>
+                            <small>
+                                Skopiowana strona zostanie ustawiona jako nieaktywna.<br>
+                                Kopiowanie nie dotyczy sekcji z plikami.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button" class="btn btn-primary" id="row-copy-perform">Tak</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Nie</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <span class="fas fa-exclamation-circle"></span> Nie znaleziono żadnej strony.<br><br>
+            <a href="{{ path(app.request.attributes.get('_route')) }}" class="alert-page">Pokaż wszystko</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+

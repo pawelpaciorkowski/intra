@@ -1,0 +1,15 @@
+framework:
+  mailer:
+    dsn: '%env(MAILER_URL)%'
+
+when@dev:
+  framework:
+    mailer:
+      envelope:
+        recipients: [ 'mariusz.rysz@alab.com.pl' ]
+
+when@test:
+  framework:
+    mailer:
+      envelope:
+        recipients: [ 'mariusz.rysz@alab.com.pl' ]

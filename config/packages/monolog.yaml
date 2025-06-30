@@ -1,0 +1,73 @@
+monolog:
+  channels: [ 'mail' ]
+
+when@dev:
+  monolog:
+    handlers:
+      main:
+        type: rotating_file
+        path: "%kernel.logs_dir%/%kernel.environment%.log"
+        level: debug
+        channels: [ "!event" ]
+        max_files: 5
+      command:
+        type: rotating_file
+        path: "%kernel.logs_dir%/%kernel.environment%-console.log"
+        level: info
+        channels: [ "app" ]
+        max_files: 5
+      symfony_mailer:
+        type: rotating_file
+        path: "%kernel.logs_dir%/%kernel.environment%-mail.log"
+        level: info
+        channels: [ "mail" ]
+        max_files: 5
+      console:
+        type: console
+        process_psr_3_messages: false
+        channels: [ "!event", "!doctrine", "!console" ]
+
+when@prod:
+  monolog:
+    handlers:
+      main:
+        type: fingers_crossed
+        action_level: warning
+        handler: grouped
+        excluded_404s:
+          - ^/
+      grouped:
+        type: group
+        members: [ streamed, deduplicated ]
+      deduplicated:
+        type: deduplication
+        handler: symfony_mailer
+      streamed:
+        type: rotating_file
+        path: "%kernel.logs_dir%/%kernel.environment%.log"
+        level: error
+        max_files: 365
+      symfony_mailer:
+        type: symfony_mailer
+        from_email: intranet@alab.com.pl
+        to_email: mariusz.rysz@alab.com.pl
+        subject: "[INTRANET] %%message%%"
+        level: error
+        formatter: monolog.formatter.html
+        content_type: text/html
+      command:
+        type: rotating_file
+        path: "%kernel.logs_dir%/%kernel.environment%-console.log"
+        level: info
+        channels: [ "app" ]
+        max_files: 365
+      mail:
+        type: rotating_file
+        path: "%kernel.logs_dir%/%kernel.environment%-mail.log"
+        level: info
+        channels: [ "mail" ]
+        max_files: 365
+      console:
+        type: console
+        process_psr_3_messages: false
+        channels: [ "!event", "!doctrine" ]

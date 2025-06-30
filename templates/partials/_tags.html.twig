@@ -1,0 +1,16 @@
+<script nonce="{{ csp_nonce('script') }}">
+    const tagInputElement = document.querySelector('.tag-input');
+    if (window.Tagify && tagInputElement) {
+        new Tagify(tagInputElement, {
+            whitelist: [{% for tag in tags%}"{{ tag.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+            dropdown: {
+                maxItems: 100,
+                classname: 'tags-look',
+                enabled: 0,
+                closeOnSelect: false
+            }
+        });
+    } else {
+        console.warn('Tagify is not loaded or .tag-input element is missing.');
+    }
+</script>

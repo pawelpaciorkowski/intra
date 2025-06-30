@@ -1,0 +1,62 @@
+services:
+  database:
+    container_name: intranet_db
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: intranet
+      MARIADB_USER: intranet
+      MARIADB_PASSWORD: intranet
+    ports:
+      - '4306:3306'
+    volumes:
+      - intranet_db:/var/lib/mysql
+    networks:
+      - intranet
+
+  php:
+    container_name: intranet_php
+    build:
+      context: ./Docker/local/app/php
+    env_file:
+      - ./Docker/local/app/.env
+    ports:
+      - '9000:9000'
+      - '3000:3000'
+      - '3001:3001'
+    volumes:
+      - .:/var/www/app
+      - intranet_upload:/var/www/app/public/upload
+    depends_on:
+      - database
+    networks:
+      - intranet
+
+  nginx:
+    container_name: intranet_nginx
+    build:
+      context: ./Docker/local/app/nginx
+    env_file:
+      - ./Docker/local/app/.env
+    ports:
+      - '8080:80'
+    volumes:
+      - .:/var/www/app
+      - ./Docker/local/app/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - intranet_upload:/var/www/app/public/upload
+    depends_on:
+      - php
+      - database
+    networks:
+      - intranet
+
+networks:
+  intranet:
+
+volumes:
+  intranet_db:
+  intranet_upload:
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###

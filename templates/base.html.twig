@@ -1,0 +1,244 @@
+{% apply spaceless %}
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="{{ defaults.title }}">
+		<meta name="author" content="Alab Laboratoria">
+		<meta name="theme-color" content="#2E3F52">
+		<title>
+			{% if breadcrumb.all %}
+				{{ breadcrumb.all|last }}
+			{% elseif menus.getSelectedLeaf(app.user) %}
+				{{ menus.getSelectedLeaf(app.user).getName }}
+			{% endif %}
+			{% if subtitle is defined and subtitle %}
+				-
+				{{ subtitle }}
+			{% endif %}
+			-
+			{{ defaults.title }}</title>
+
+		{% block stylesheets %}{% endblock %}
+		<link href="{{ prefetch(asset('css/alab.min.css')) }}" rel="stylesheet" nonce="{{ csp_nonce('script') }}">
+
+		<!--[if IE]>
+			<link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+		<![endif]-->
+		<link rel="icon" href="{{ asset('favicon-196.png') }}">
+		<link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+		<link rel="apple-touch-icon" sizes="76x76" href="{{ asset('apple-touch-icon-76.png') }}">
+		<link rel="apple-touch-icon" sizes="120x120" href="{{ asset('apple-touch-icon-120.png') }}">
+		<link rel="apple-touch-icon" sizes="152x152" href="{{ asset('apple-touch-icon-152.png') }}">
+	</head>
+	<body role="document">
+
+		{% block document %}
+
+			<div id="wrapper" {% if app.request.get('_route') == 'dashboard' %} class="dark" {% endif %}>
+
+				<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Przełączanie nawigacji</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+
+					<ul class="nav navbar-top-links navbar-right text-right">
+						{% if security.hasAccess('user-profile') %}
+							<li>
+								<a href="{{ path('user-profile') }}" data-toggle="tooltip" data-placement="bottom" data- title="Twój profil">
+									<span class="fas fa-user fa-fw"></span>
+								</a>
+							</li>
+						{% endif %}
+						{% if security.hasAccess('user-setting') %}
+							<li>
+								<a href="{{ path('user-setting') }}" data-toggle="tooltip" data-placement="bottom" title="Ustawienia">
+									<span class="fas fa-cog fa-fw"></span>
+								</a>
+							</li>
+						{% endif %}
+						{% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+							<li>
+								<a href="{{ path('dashboard', {'_switch_user': '_exit'}) }}" class="text-danger" data-toggle="tooltip" data-placement="bottom" title="Wróć na swoje konto">
+									<span class="fas fa-redo fa-fw"></span>
+									Wróć</a>
+							</li>
+						{% elseif is_granted('ROLE_USER_SWITCH') %}
+							<li>
+								<a href="#" id="switch-user-link" data-toggle="tooltip" data-placement="bottom" title="Przełącz użytkownika">
+									<span class="fas fa-redo fa-fw"></span>
+									Przełącz</a>
+							</li>
+						{% endif %}
+						{% if not app.user %}
+							<li>
+								<a href="{{ path('login') }}" data-toggle="tooltip" data-placement="bottom" title="Zaloguj się">
+									<span class="fas fa-sign-in-alt fa-fw"></span>
+									Zaloguj się</a>
+							</li>
+						{% else  %}
+							<li>
+								<a href="{{ path('logout') }}" data-toggle="tooltip" data-placement="bottom" title="Wyloguj się">
+									<span class="fas fa-sign-out-alt fa-fw"></span>
+									Wyloguj</a>
+							</li>
+						{% endif %}
+						<li>
+							<a href="{{ path('dashboard-public') }}" data-toggle="tooltip" data-placement="bottom" title="Przejdź na stronę główną">
+								<div class="badge badge-danger">
+									<span class="fas fa-share fa-fw"></span>
+									Start
+								</div>
+							</a>
+						</li>
+					</ul>
+
+					<div class="navbar-default sidebar">
+						<div class="sidebar-nav navbar-collapse">
+
+							<ul class="nav side-menu" id="side-menu">
+								<li>
+									<a class="brand" href="{{ path('dashboard') }}" title="{{ defaults.title }}">
+										<img src="{{ asset('img/alab_logo_white.png') }}" height="25" width="" alt="{{ defaults.title }}">
+									</a>
+								</li>
+								{% if app.user %}
+									<li>
+										{% if security.hasAccess('user-profile') %}
+											<a href="{{ path('user-profile') }}" class="user">
+										{% endif %}
+										<div class="avatar">
+											<img class="avatar" src="{% if app.user.name|last == 'a' %}{{ asset(('img/avatar_female.png')) }}{% else %}{{ asset(('img/avatar_male.png')) }}{% endif %}" width="42" height="42"/>
+										</div>
+										<span data-toggle="tooltip" data-placement="bottom" title="{{ app.user.team.getName }}">
+											Witaj,<br>
+											{% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+												<strong>{{ app.user.fullname }}</strong>
+												<small class="text-danger">(tymczasowo)</small>
+											{% else %}
+												<strong>{{ app.user.fullname }}</strong>
+											{% endif %}
+										</span>
+										{% if security.hasAccess('user-profile') %}
+											</a>
+										{% endif %}
+									</li>
+								{% endif %}
+
+								{% set depth = 0 %}
+								{% for row in menus.findAllByParams({'is-active': true, withAuthUser: true, return_array: true, cached: true, cacheTag: 'menu', user: app.user, maxDepth: 3}) %}
+									{% if not loop.first %}
+										{% if row.depth < depth %}
+											{% for i in row.depth..(depth - 1) %}
+												</ul>
+											{% endfor %}
+										{% endif %}
+										</li>
+									{% endif %}
+
+									{% if row.lft + 1 == row.rgt %}
+										<li>
+											<a {% if menus.getSelectedLeaf(app.user) and row.lft <= menus.getSelectedLeaf(app.user).getLft and row.rgt >= menus.getSelectedLeaf(app.user).getRgt %} class="active" {% endif %} href="{% if row.link %}{{ path(row.link.name) }}{% endif %}">
+												{% if row.additionalIcon %}
+													<span class="fas fa-{{ row.additionalIcon.name }} fa-fw pull-right"></span>
+												{% endif %}
+												{% if row.icon %}
+													<span class="fas fa-{{ row.icon.name }} fa-fw"></span>
+												{% endif %}
+												{{ row.name }}
+											</a>
+									{% else %}
+
+										{% set s = false %}
+										{% if menus.getSelectedLeaf(app.user) and row.lft <= menus.getSelectedLeaf(app.user).lft and row.rgt >= menus.getSelectedLeaf(app.user).rgt %}
+											{% set s = true %}
+										{% endif %}
+
+										<li class="{% if s %}mm-active{% endif %}">
+											<a href="#" aria-expanded="{{ s?'true':'false' }}">
+												{% if row.additionalIcon %}
+													<span class="fas fa-{{ row.additionalIcon.name }} fa-fw pull-right"></span>
+												{% endif %}
+												{% if row.icon %}
+													<span class="fas fa-fw fa-{{ row.icon.name }}"></span>
+												{% endif %}
+												{{ row.name }}
+											</a>
+											<ul class="nav nav-
+												{%- if row.depth == 0 -%}
+													second
+												{%- elseif row.depth == 1 -%}
+													third
+												{%- elseif row.depth == 2 -%}
+													four
+												{%- else -%}
+													fifth
+												{%- endif -%}
+											-level" aria-expanded="{{ s?'true':'false' }}">
+									{% endif %}
+
+									{% if loop.last %}
+										{% for i in row.depth..1 %}
+												</li>
+											</ul>
+										{% endfor %}
+										</li>
+									{% endif %}
+									{% set depth = row.depth %}
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</nav>
+
+				<div id="page-wrapper">
+					<div class="page-content">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-lg-12 page-wrapper-box">
+									<div id="box-wrapper">
+										{% if app.request.get('_route') != 'dashboard' and app.request.get('_route') != 'dashboard-2' %}
+											{% include 'partials/breadcrumb.html.twig' %}
+										{% endif %}
+										{% block body %}{% endblock %}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endblock %}
+
+		{% if is_granted('ROLE_USER_SWITCH') %}
+			{% include 'partials/modal-switch-to-user.html.twig' %}
+		{% endif %}
+
+		{% block modals %}{% endblock %}
+
+		<script type="text/javascript" nonce="{{ csp_nonce('script') }}">
+			if (notificationList == null) {
+				var notificationList = [];
+			}
+
+			{% for type, messages in app.flashes %}
+				{% for message in messages %}
+					notificationList.push({
+						type: '{{ type }}',
+						message: '{{ message }}'
+					});
+				{% endfor %}
+			{% endfor %}
+		</script>
+
+		<script src="{{ prefetch(asset('js/alab.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+
+		{% block javascripts %}{% endblock %}
+	</body>
+</html>
+{% endapply %}

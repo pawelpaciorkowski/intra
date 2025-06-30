@@ -1,0 +1,116 @@
+{% extends 'partials/form.html.twig' %}
+
+{% block form %}
+
+    {{ form_start(form) }}
+
+    {{ form_errors(form) }}
+
+    {{ form_row(form.isActive) }}
+    {{ form_row(form.pageTemplate) }}
+    {{ form_row(form.publishedAt) }}
+    {{ form_row(form.title) }}
+    {{ form_row(form.shortText) }}
+    {{ form_row(form.longText) }}
+    {{ form_row(form.categories) }}
+
+    {% set filePrototype = form_widget(form.fileSections.vars.prototype.files.vars.prototype) %}
+
+    {% set fileSectionPrototype = form_widget(form.fileSections.vars.prototype) %}
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-9">
+            <h4 class="text-blue"><strong>Załączniki</strong></h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div id="file-section-item-list" class="col-sm-9 file-section-item-list" data-type="file-section" data-prototype="{{ fileSectionPrototype|e }}" data-file-prototype="{{ filePrototype|e }}">
+            {% for fileSectionItem in form.fileSections %}
+                {% set fileSectionIndex = loop.index0 %}
+                <div class="file-section-item" id="file-section-{{ fileSectionIndex }}">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="pull-right">
+                                <button class="btn btn-xs btn-danger remove-file-section-item delete" type="button" title="Usuń sekcję" data-toggle="tooltip">
+                                    <span class="fa fa-times"></span>
+                                </button>
+                            </div>
+                            <a class="move btn btn-xs btn-info"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                            {{ form_row(fileSectionItem.order) }}
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-xs-12 file-section-item-title {% if fileSectionItem.title.vars.valid == false %} has-error{% endif %}">
+                                {{ form_row(fileSectionItem.title) }}
+                            </div>
+                            <div class="col-xs-12 file-section-item-short-text {% if fileSectionItem.shortText.vars.valid == false %} has-error{% endif %}">
+                                {{ form_row(fileSectionItem.shortText) }}
+                            </div>
+
+                            <div class="col-xs-12 file-section-item-files {% if fileSectionItem.files.vars.valid == false %} has-error{% endif %}">
+                                {% set filePrototype = form_widget(fileSectionItem.files.vars.prototype) %}
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div id="file-item-list-{{ fileSectionIndex }}-{{ loop.index0 }}" class="col-sm-9 file-item-list" data-type="file" data-prototype="{{ filePrototype|e }}">
+                                        {% for fileItem in fileSectionItem.files %}
+                                            <div class="file-item" id="file-section-{{ fileSectionIndex }}-file-{{ loop.index0 }}">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">
+                                                        <div class="pull-right">
+                                                            <button class="btn btn-xs btn-danger remove-file-item delete" type="button" title="Usuń załącznik" data-toggle="tooltip"><span class="fa fa-times"></span></button>
+                                                        </div>
+                                                        <a class="move btn btn-xs btn-info"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                                                        {{ form_row(fileItem.order) }}
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        {{ form_row(fileItem.title) }}
+                                                        {{ form_row(fileItem.file) }}
+                                                        {% if fileItem.file %}
+                                                            <div class="row">
+                                                                <div class="col-sm-3"></div>
+                                                                <div class="col-sm-9">
+                                                                    Pobierz przesłany plik: <a href="{{ url('file-download', {'id': form.vars.value.fileSections[fileSectionIndex].files[loop.index0].id}) }}">
+                                                                        {{ form.vars.value.fileSections[fileSectionIndex].files[loop.index0].originalFilename }}
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9">
+                                        <button class="btn btn-warning add-another-file-item" data-list="file-item-list-{{ fileSectionIndex }}-{{ loop.index0 }}" type="button" title="Dodaj załącznik" data-toggle="tooltip"><span class="fa fa-plus"></span> Dodaj załącznik</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-9">
+            <button class="btn btn-warning add-another-file-section-item" data-list="file-section-item-list" type="button" title="Dodaj nową sekcję" data-toggle="tooltip"><span class="fa fa-plus"></span> Dodaj nową sekcję</button>
+        </div>
+    </div>
+
+    {{ form_row(form._token) }}
+    {{ form_row(form.save) }}
+
+    {{ form_end(form, {'render_rest': false}) }}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.file.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+    <script src="{{ prefetch(asset('js/alab.fileSection.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+    <script src="{{ prefetch(asset('js/tinymce/tinymce.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+    <script src="{{ prefetch(asset('js/alab.tinymce.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

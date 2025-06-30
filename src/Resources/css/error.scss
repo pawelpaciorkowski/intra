@@ -1,0 +1,22 @@
+.page-header {
+  h1 {
+    margin-top: 0;
+  }
+
+  .mr-text-right {
+    text-align: right;
+    padding-top: 10px;
+  }
+
+  .form-control {
+    width: 100%;
+    min-width: 250px;
+  }
+}
+
+.page-error {
+  padding-left: 130px;
+  background: url(/img/cat_hungry.png) no-repeat 0 0;
+  padding-top: 10px;
+  min-height: 110px;
+}

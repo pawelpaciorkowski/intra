@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/modal-delete.html.twig' with {'element': 'carousel'} %}
+    {% include 'partials/list-header.html.twig' with {'action': 'carousel-create', 'noFilter': true} %}
+
+    {% if rows.count %}
+
+        {% set class = 'carousel' %}
+        {% set columns = {
+            'photo': {'name': 'Zdjęcie', 'sort': false, 'filter': false},
+            'title': {'name': 'Tytuł', 'sort': false, 'filter': true},
+            'date': {'name': 'Data', 'sort': false, 'filter': true},
+            'short-text': {'name': 'Krótki opis', 'sort': false, 'filter': true},
+        } %}
+
+        {% set isFilterBarVisible = false %}
+        {% for key,text in columns %}
+            {% if app.request.get(key) != '' %}
+                {% set isFilterBarVisible = true %}
+            {% endif %}
+        {% endfor %}
+
+        <form method="get" action="">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover table-stick alab-sortable-carousel" data-table="carousel">
+                        <thead>
+                        <tr>
+                            <th class="mr-thin-column">
+                            </th>
+                            {% for key,params in columns %}
+                                <th>{{ params.name }}</th>
+                            {% endfor %}
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in rows %}
+                            <tr data-name="{{ row.title }}" data-delete-action="{{ path('carousel-delete', {'id': row.id}) }}" data-id="{{ row.id }}">
+                                <td class="mr-thin-column">
+                                    <a class="move btn btn-info"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                                </td>
+                                <td>
+                                    {% if row.temporaryFilename %}
+                                        <a href="{{ path('carousel-update', {'id': row.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>
+                                            <img class="photo" src="{{ asset(('carousel/'~row.temporaryFilename)| imagine_filter('carousel')) }}" width="79" height="44"/>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('carousel-update', {'id': row.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>{{ row.title }}</a>
+                                </td>
+                                <td>
+                                    <a href="{{ path('carousel-update', {'id': row.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>{{ row.date|format_datetime('short') }}</a>
+                                </td>
+                                <td>
+                                    <a href="{{ path('carousel-update', {'id': row.id}) }}" {% if not row.isActive %} class="inactive"{% endif %}>{{ row.shortText|raw }}</a>
+                                </td>
+                                <td class="action-buttons">
+                                    <a href="{{ path('carousel-update', {'id': row.id}) }}" class="btn btn-primary btn-xs" data-toggle="tooltip" title="<strong>Utworzono</strong>: {{ row.createdAt|format_datetime('short') }}<br><strong>Zmieniono</strong>: {{ row.updatedAt|format_datetime('short') }}"><span class="fas fa-fw fa-pencil-alt"></span></a>
+                                    <button class="btn btn-danger btn-xs row-delete inline-xs-margin-left" data-title="Delete" data-toggle="tooltip" title="Usuń">
+                                        <span class="fas fa-fw fa-trash-alt"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+
+        {% include 'partials/pagination.html.twig' %}
+
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <span class="fas fa-exclamation-circle"></span> Nie znaleziono żadnego slajdu.<br><br>
+            <a href="{{ path(app.request.attributes.get('_route')) }}" class="alert-page">Pokaż wszystko</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.nestedSortable.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

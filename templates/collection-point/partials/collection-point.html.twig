@@ -1,0 +1,394 @@
+<div class="panel panel-blue">
+    <div class="panel-heading">
+        <div class="pull-right">
+            {% if security.hasAccess('collection-point-view') and showCardLink|default %}
+                <a href="{{ path('collection-point-view', {'id': collectionPoint.id}) }}" class="btn btn-default btn-xs"
+                   data-toggle="tooltip" title="Zobacz kartę">Karta</a>
+            {% endif %}
+        </div>
+        <a data-toggle="collapse" data-parent="#accordionCollectionPoint"
+           href="#collapseCollectionPoint{{ collectionPoint.id }}">{{ collectionPoint.name|default('?') }}</a>
+    </div>
+    <div id="collapseCollectionPoint{{ collectionPoint.id }}"
+         class="panel-collapse collapse {% if not collapsed|default %}in{% endif %}">
+        <table class="table table-striped th-right">
+            <tr>
+                <th>Aktywny</th>
+                <td>
+                    {% if collectionPoint.isActive %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Widoczny na www</th>
+                <td>
+                    {% if collectionPoint.isWeb %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Sprzedaż badań przez internet</th>
+                <td>
+                    {% if collectionPoint.isShop %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Konkurs</th>
+                <td>
+                    {% if collectionPoint.isContest %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Covid prywatny</th>
+                <td>
+                    {% if collectionPoint.isCovidPrivate %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Dyrektor regionalny</th>
+                <td>
+                    {% for user in collectionPoint.laboratory.region.users|default({}) %}
+                        {% if security.hasAccess('user-update') %}
+                            <a href="{{ path('user-update', {'id': user.id}) }}" class="text-alternative">{{ user.fullname }}</a>
+                        {%- else %}
+                            <a href="{{ path('collection-point-view', {'id': row.id}) }}">{{ user.fullname }}</a>
+                        {%- endif %}
+                        {%- if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th>Laboratorium</th>
+                <td>
+                    {% if collectionPoint.laboratory %}
+                        {% if security.hasAccess('laboratory-update') %}
+                            <a href="{{ path('laboratory-update', {'id': collectionPoint.laboratory.id}) }}"
+                               class="text-alternative">{{ collectionPoint.laboratory.name }}</a>
+                        {% elseif security.hasAccess('collection-point-view') and is_granted('edit', collectionPoint) %}
+                            <a href="{{ path('collection-point-view', {'id': collectionPoint.id}) }}">{{ collectionPoint.laboratory.name }}</a>
+                        {% else %}
+                            {{ collectionPoint.laboratory.name }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Alternatywny punkt pobrań</th>
+                <td>
+                    {% if collectionPoint.collectionPointAlternative %}
+                        {% if security.hasAccess('collection-point-update') %}
+                            <a href="{{ path('collection-point-update', {'id': collectionPoint.collectionPointAlternative.id}) }}"
+                               class="text-alternative">{{ collectionPoint.collectionPointAlternative.name }}</a>
+                        {% elseif security.hasAccess('collection-point-view') and is_granted('edit', collectionPoint.collectionPointAlternative) %}
+                            <a href="{{ path('collection-point-view', {'id': collectionPoint.collectionPointAlternative.id}) }}">{{ collectionPoint.collectionPointAlternative.name }}</a>
+                        {% else %}
+                            {{ collectionPoint.collectionPointAlternative.name }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Nazwa</th>
+                <td>{{ collectionPoint.name }}</td>
+            </tr>
+            <tr>
+                <th>Marcel</th>
+                <td>{{ collectionPoint.marcel }}</td>
+            </tr>
+            <tr>
+                <th>MPK</th>
+                <td>{{ collectionPoint.mpk }}</td>
+            </tr>
+            <tr>
+                <th>Klasyfikacja</th>
+                <td>{{ collectionPoint.collectionPointClassification.name|default }}</td>
+            </tr>
+            <tr>
+                <th>Rodzaj punktu</th>
+                <td>{{ collectionPoint.collectionPointLocation.name|default }}</td>
+            </tr>
+            <tr>
+                <th>Spółka prowadząca</th>
+                <td>{{ collectionPoint.collectionPointPartner.name|default }}</td>
+            </tr>
+            <tr>
+                <th>Cennik</th>
+                <td>{{ collectionPoint.priceList }}</td>
+            </tr>
+            <tr>
+                <th>Liczba osób pobierających</th>
+                <td>{{ collectionPoint.takingSamples }}</td>
+            </tr>
+            <tr>
+                <th>Liczba osób rejestrujących</th>
+                <td>{{ collectionPoint.registrants }}</td>
+            </tr>
+            <tr>
+                <th>Dostęp do internetu</th>
+                <td>
+                    {% if collectionPoint.isInternet %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Przyjazny dzieciom</th>
+                <td>
+                    {% if collectionPoint.isChildren %}
+                        <span class="fas fa-check"></span>
+                        <ul class="list-basic">
+                        {% if collectionPoint.isChildrenConfirm == true %}
+                            <li>wymagane potwierdzenie telefonicznie</li>
+                        {% endif %}
+                        {% if collectionPoint.isChildrenAge > 0 %}
+                            <li>{{ isChildrenAgeOptions[collectionPoint.isChildrenAge] }}</li>
+                        {% endif %}
+                        </ul>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Ginekologiczny</th>
+                <td>
+                    {% if collectionPoint.isGynecology %}
+                        <span class="fas fa-check"></span>
+                        {% if collectionPoint.isGynecologyConfirm == true %}
+                            <ul>
+                                <li>wymagane potwierdzenie telefonicznie</li>
+                            </ul>
+                        {% endif %}
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Dermatofity</th>
+                <td>
+                    {% if collectionPoint.isDermatofit %}
+                        <span class="fas fa-check"></span>
+                        {% if collectionPoint.isDermatofitConfirm == true %}
+                            <ul>
+                                <li>wymagane potwierdzenie telefonicznie</li>
+                            </ul>
+                        {% endif %}
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Program 40+</th>
+                <td>
+                    {% if collectionPoint.is40Plus %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Adres</th>
+                <td>{{ collectionPoint.streetType.short|default }} {{ collectionPoint.street }}</td>
+            </tr>
+            <tr>
+                <th>Miasto</th>
+                <td>
+                    {% if collectionPoint.city %}
+                        {% if security.hasAccess('city-update') %}
+                            <a href="{{ path('city-update', {'id': collectionPoint.city.id}) }}"
+                               class="text-alternative">{{ collectionPoint.city.name }}</a>
+                        {% elseif security.hasAccess('collection-point-view') %}
+                            <a href="{{ path('collection-point-view', {'id': collectionPoint.id}) }}">{{ collectionPoint.city.name }}</a>
+                        {% else %}
+                            {{ collectionPoint.city.name }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Województwo</th>
+                <td>
+                    {% if collectionPoint.city %}
+                        {% if security.hasAccess('province-update') %}
+                            <a href="{{ path('province-update', {'id': collectionPoint.city.province.id}) }}"
+                               class="text-alternative">{{ collectionPoint.city.province.name }}</a>
+                        {% elseif security.hasAccess('collection-point-view') %}
+                            <a href="{{ path('collection-point-view', {'id': collectionPoint.id}) }}">{{ collectionPoint.city.province.name }}</a>
+                        {% else %}
+                            {{ collectionPoint.city.province.name }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Kod pocztowy</th>
+                <td>{{ collectionPoint.postalCode }}</td>
+            </tr>
+            <tr>
+                <th>Dodatkowe informacje o adresie</th>
+                <td>{{ collectionPoint.addressInfo }}</td>
+            </tr>
+            <tr>
+                <th>Płatność kartą</th>
+                <td>
+                    {% if collectionPoint.isCard %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Dostęp dla osób niepełnosprawnych </th>
+                <td>
+                    {% if collectionPoint.isForDisabled %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Długość geograficzna</th>
+                <td>{{ collectionPoint.longitude }}</td>
+            </tr>
+            <tr>
+                <th>Szerokość geograficzna</th>
+                <td>{{ collectionPoint.latitude }}</td>
+            </tr>
+            <tr>
+                <th>Spacer 3D</th>
+                <td>{{ collectionPoint.walk3d }}</td>
+            </tr>
+            <tr>
+                <th>Telefony</th>
+                <td>
+                    {% for phone in collectionPoint.phones %}
+                        <a href="callto:{{ phone.number }}" class="text-alternative" title="zadzwoń na ten numer" data-toggle="tooltip">{{ phone.number }}</a>
+                        {%- if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th>E-mail</th>
+                <td>
+                    {% if collectionPoint.email %}
+                        <a href="mailto:{{ collectionPoint.email }}"
+                           class="text-alternative">{{ collectionPoint.email }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Data podpisania umowy</th>
+                <td>
+                    {% if collectionPoint.signedAt %}
+                        {{ collectionPoint.signedAt|format_date('short') }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Data uruchomienia</th>
+                <td>
+                    {% if collectionPoint.openAt %}
+                        {{ collectionPoint.openAt|format_date('short') }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Data zamknięcia</th>
+                <td>
+                    {% if collectionPoint.closeAt %}
+                        {{ collectionPoint.closeAt|format_date('short') }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Kalendarze</th>
+                <td>
+                    {% if collectionPoint.calendars|length %}
+                        {% for calendar in collectionPoint.calendars %}
+                            {{ calendar.chatbotizeCalendar.name }}
+                            {%- if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Dodatkowe informacje</th>
+                <td>
+                    {{ collectionPoint.additionalInfo|raw }}
+                </td>
+            </tr>
+            <tr>
+                <th>Wewnętrzne komentarze</th>
+                <td>
+                    {{ collectionPoint.internalInfo|raw }}
+                </td>
+            </tr>
+        </table>
+        {% if hidePeriods is not defined or hidePeriods != true %}
+            {% for type in ['work', 'collect'] %}
+                <div class="panel-heading panel-heading-alternative">
+                    Godziny {% if type == 'work' %}pracy{% elseif type == 'collect' %}pobrań{% endif %}
+                </div>
+                {% set hasPeriods = false %}
+                {% set content %}
+                    <table class="table table-striped th-right">
+                        {% set day = null %}
+                        {% for period in collectionPoint.periods %}
+                            {% if period.type == type %}
+                                {% set hasPeriods = true %}
+                                {% if day != period.dayOfWeek %}
+                                    {% if day != null %}</td></tr>{%- endif %}
+                                    {% set day = period.dayOfWeek %}
+                                    <tr>
+                                        <th>{{ period.dayOfWeek.name }}</th>
+                                        <td>
+                                {% else %}
+                                    <br>
+                                {% endif %}
+                                {% if period.isAllDay %}
+                                    całodobowo
+                                {% else %}
+                                    {{ period.startAt|format_time('short') }} - {{ period.endAt|format_time('short') }}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        </tr>
+                    </table>
+                {% endset %}
+
+                {% if hasPeriods %}
+                    {{ content }}
+                {% else %}
+                    <p class="alert alert-warning no-margin-bottom">Brak danych</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

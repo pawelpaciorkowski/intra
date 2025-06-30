@@ -1,0 +1,92 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+{% if popup %}
+<div id="popup" class="popup-overlay" data-popup-id="{{ popup.id }}">
+    <div class="popup-content">
+        <button id="popup-close-btn" class="popup-close-btn">&times;</button>
+        {{ popup.content|raw }}
+        <div class="popup-footer">
+            <label>
+                <input type="checkbox" id="popup-checkbox">
+                Nie pokazuj więcej
+            </label>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="container">
+    <div class="row intro">
+        <video autoplay loop muted class="background-video">
+    <source src="{{ asset('video/intro.mp4') }}" type="video/mp4">
+    Twoja przeglądarka nie obsługuje wideo HTML5.
+</video>
+
+        <div class="col-md-5 col=sm-10 col-md-offset-1 col-sm-offset-1">
+            <h1>WITAJ W INTRANECIE!</h1>
+            <p class="text-justify">
+                Intranet jest miejscem, które ułatwia komunikację i współpracę pomiędzy wszystkimi pracownikami, niezależnie od tego, w jakim obszarze działasz. Będziesz miał dostęp do różnego rodzaju dokumentów i materiałów, które pomogą Ci lepiej poznać firmę. Dzięki temu będziesz mógł szybko znaleźć potrzebne informacje i skutecznie realizować powierzone zadania.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        {% for carousel in carousels %}
+            {% set link = '#' %}
+            {% if carousel.url %}
+                {% set link = carousel.url %}
+            {% elseif carousel.page %}
+                {% set link = url('page-view', {'id': carousel.page.id}) %}
+            {% elseif carousel.link %}
+                {% set link = path(carousel.link.name) %}
+            {% elseif carousel.category %}
+                {% set link = url('category-view', {'id': carousel.category.id}) %}
+            {% endif %}
+
+            <a href="{{ link }}">
+                {% if carousel.temporaryFilename %}
+                    <img src="{{ asset(('carousel/'~carousel.temporaryFilename)| imagine_filter('carousel')) }}" />
+                {% endif %}
+                <div>
+                    <h3>{{ carousel.title }}</h3>
+                    {{ carousel.shortText|raw }}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="container">
+    <div class="row page-intro-boxes row-equal-height">
+        {% for box in boxes %}
+            {% set link = '#' %}
+            {% if box.url %}
+                {% set link = box.url %}
+            {% elseif box.page %}
+                {% set link = url('page-view', {'id': box.page.id}) %}
+            {% elseif box.link %}
+                {% set link = path(box.link.name) %}
+            {% elseif box.category %}
+                {% set link = url('category-view', {'id': box.category.id}) %}
+            {% endif %}
+
+            <div class="col-xs-12 col-sm-6 col-md-4 page-intro-box">
+                <a href="{{ link }}" target="{{ box.targetType.value }}">
+                {% if box.temporaryFilename %}
+                    <img class="image-fluid" src="{{ asset(('box/'~box.temporaryFilename)| imagine_filter('box')) }}" />
+                {% endif %}
+                <div class="mx-20">
+                    <h3>{{ box.title }}</h3>
+                    {{ box.shortText|raw }}
+                </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

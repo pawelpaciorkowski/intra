@@ -1,0 +1,62 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/list-header.html.twig' with {'noFilter': true} %}
+
+    <div class="row">
+        <div class="col-md-8">
+
+            <div>
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs nav-tabs-sm" role="tablist">
+                    <li role="presentation" class="active"><a href="#pracownie" aria-controls="pracownie" role="tab" data-toggle="tab">Pracownie {% if laboratory.labs|length %}<span class="badge badge-info">{{ laboratory.labs|length }}</span>{% endif %}</a></li>
+                    <li role="presentation"><a href="#punkty" aria-controls="punkty" role="tab" data-toggle="tab">Punkty pobrań {% if laboratory.collectionPoints|length %}<span class="badge badge-info">{{ laboratory.collectionPoints|length }}</span>{% endif %}</a></li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="pracownie">
+                        {% if laboratory.labs|length %}
+                            <div class="panel-group" id="accordionLab">
+                                {% set labGroupId = null %}
+                                {% for lab in laboratory.labs %}
+                                    {% if lab.labGroup and lab.labGroup.id != labGroupId %}
+                                        <h5 class="side-line-right">{{ lab.labGroup.name }}</h5>
+                                        {% set labGroupId = lab.labGroup.id %}
+                                    {% endif %}
+                                    {% include 'lab/partials/lab.html.twig' with {'collapsed': true, 'showCardLink': true} %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="alert alert-warning">To laboratorium nie ma pracowni.</p>
+                        {% endif %}
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="punkty">
+                        {% if laboratory.collectionPoints|length %}
+                            <div class="panel-group" id="accordionCollectionPoint">
+                                {% for collectionPoint in laboratory.collectionPoints %}
+                                    {% include 'collection-point/partials/collection-point.html.twig' with {'collapsed': true, 'showCardLink': true} %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="alert alert-warning">To laboratorium nie ma przypisanych punktów pobrań.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            {% if laboratory.user %}
+                {% include 'user/partials/user.html.twig' with {'user': laboratory.user} %}
+            {% endif %}
+
+            {% include 'laboratory/partials/laboratory.html.twig' %}
+        </div>
+    </div>
+
+{% endblock %}
+
+
+

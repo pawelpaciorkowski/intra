@@ -1,0 +1,23 @@
+<ol class="breadcrumb">
+    <li><a href="{{ path("dashboard") }}"><span class="fas fa-fw fa-tachometer-alt"></span>&nbsp;Dashboard</a></li>
+
+    {% for element in categories.getSelectedPath(app.user ? app.user: null) %}
+
+        {% set link = null %}
+        {% if element.url %}
+            {% set link = element.url %}
+        {% elseif element.page %}
+            {% set link = url('page-view', {'id': element.page.id}) %}
+        {% elseif element.link %}
+            {% set link = path(element.link.name) %}
+        {% elseif element.pages %}
+            {% set link = url('category-view', {'id': element.id}) %}
+        {% endif %}
+
+        {% if link %}
+            <li><a href="{{ link }}">{{ element.getName }}</a></li>
+        {% else %}
+            <li>{{ element.getName }}</li>
+        {% endif %}
+    {% endfor %}
+</ol>

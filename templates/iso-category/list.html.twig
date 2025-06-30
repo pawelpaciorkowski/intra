@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/modal-delete.html.twig' %}
+    {% include 'partials/list-header.html.twig' with {'action': 'iso-category-create', 'noFilter': true, 'actionText': '<span class="fas fa-fw fa-plus"></span> dodaj kategorię'} %}
+
+    {% if rows %}
+        <div class="alab-sortable-tree iso" data-handler="iso-category">
+            <ol>
+                <li class="head" id="0"><a href="#" class="move hidden"></a>Kategorie</li>
+
+                {% set depth = 0 %}
+                {% for row in rows %}
+
+                    {% set data = 'id="iso-category_' ~ row.id ~ '" data-delete-action="' ~ path('iso-category-delete', {'id': row.id}) ~ '" data-name="' ~ row.getName ~ '" data-subject="kategorię" data-type="iso-category"' %}
+                    {% if loop.first %}
+                        <li {{ data|raw }}>
+                    {% elseif row.depth < depth %}
+                        {% for i in row.depth..(depth-1) %}
+                            </li></ol>
+                        {% endfor %}
+
+                        <li {{ data|raw }}>
+                    {% elseif row.depth > depth %}
+                        {% for i in depth..(row.depth-1) %}
+                            <ol>
+                                <li {{ data|raw }}>
+                        {% endfor %}
+                    {% else %}
+                        </li>
+                            <li {{ data|raw }}>
+                    {% endif %}
+
+                    <a class="move btn btn-warning"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                    <a href="{{ path('iso-category-update', {'id': row.id}) }}"{% if not row.isActive %} class="inactive"{% endif %}>
+                        {{ row.getName }}
+                    </a>
+
+                    <div class="pull-right">
+                        <a href="#" class="btn btn-info btn-xs" data-toggle="iso-files">
+                            pokaż pliki
+                        </a>
+                        <a href="{{ path('iso-file-create', {'iso-category-id': row.id}) }}" class="btn btn-success btn-xs inline-xs-margin-left" data-toggle="tooltip">
+                            <span class="fas fa-fw fa-plus"></span> plik
+                        </a>
+                        <a href="{{ path('iso-category-update', {'id': row.id}) }}" class="btn btn-primary btn-xs inline-xs-margin-left" data-toggle="tooltip" title="<strong>Utworzono</strong>: {{ row.createdAt|format_datetime('short') }}<br><strong>Zmieniono</strong>: {{ row.updatedAt|format_datetime('short') }}">
+                            <span class="fas fa-fw fa-pencil-alt"></span>
+                        </a>
+                        <button class="btn btn-danger btn-xs row-delete inline-xs-margin-left" data-title="Delete" data-toggle="tooltip" title="Usuń">
+                            <span class="fas fa-fw fa-trash-alt"></span>
+                        </button>
+                    </div>
+
+                    {% if row.ISOFiles|length %}
+                        <div class="alab-sortable-iso-files" data-handler="iso-file" data-type="iso-files" style="display: none;">
+                            <ol>
+                                <li class="head" id="0"><a href="#" class="move hidden"></a>Pliki</li>
+                                {% for ISOFile in row.ISOFiles %}
+                                    <li id="iso-file_{{ ISOFile.id }}" data-delete-action="{{ path('iso-file-delete', {'id': ISOFile.id}) }}" data-name="{{ ISOFile.name }}" data-subject="plik" data-type="iso-file" data-id="{{ ISOFile.id }}">
+                                        <a class="move btn btn-info"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                                        <a href="{{ path('iso-file-update', {'id': ISOFile.id}) }}"{% if not row.isActive %} class="inactive"{% endif %}>
+                                            {{ ISOFile.name }}
+                                        </a>
+                                        <div class="pull-right">
+                                            <a href="{{ path('iso-file-update', {'id': ISOFile.id}) }}" class="btn btn-primary btn-xs" data-toggle="tooltip" title="<strong>Utworzono</strong>: {{ ISOFile.createdAt|format_datetime('short') }}<br><strong>Zmieniono</strong>: {{ ISOFile.updatedAt|format_datetime('short') }}">
+                                                <span class="fas fa-fw fa-pencil-alt"></span>
+                                            </a>
+                                            <button class="btn btn-danger btn-xs row-delete inline-xs-margin-left" data-title="Delete" data-toggle="tooltip" title="Usuń">
+                                                <span class="fas fa-fw fa-trash-alt"></span>
+                                            </button>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    {% endif %}
+
+                    {% set depth = row.depth %}
+
+                    {% if loop.last %}
+                        {% for i in row.depth..depth %}
+                            </li></ol>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <span class="fas fa-exclamation-circle"></span> Nie znaleziono żadnej kategorii.<br><br>
+            <a href="{{ path(app.request.attributes.get('_route')) }}" class="alert-link">Pokaż wszystko</a>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.nestedSortable.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

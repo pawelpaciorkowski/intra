@@ -1,0 +1,12 @@
+framework:
+  cache:
+    pools:
+      app.cache.file.data:
+        public: true
+        adapter: cache.adapter.filesystem
+      app.cache.file.tag:
+        public: true
+        adapter: cache.adapter.filesystem
+      app.cache.doctrine:
+        public: true
+        adapter: cache.adapter.filesystem

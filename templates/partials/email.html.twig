@@ -1,0 +1,23 @@
+{% apply inky_to_html|inline_css %}
+<html>
+    <head>
+        <style>
+            {% block style %}
+            {{ source('@css/alab.email.min.css') }}
+            {% endblock %}
+        </style>
+    </head>
+    <body>
+
+        <spacer size="16"></spacer>
+
+        <container class="container body-border float-center">
+            <row>
+                <columns small="12">
+                    {% block body %}{% endblock %}
+                </columns>
+            </row>
+        </container>
+
+    </html>
+{% endapply %}

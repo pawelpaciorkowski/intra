@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+
+    {% include 'partials/list-header.html.twig' with {'className': 'page-header--map'} %}
+
+    <div id="map-cp" class="map-cp mb-3 mt-4"></div>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/alab.map.min.css') }}" nonce="{{ csp_nonce('script') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/alab.map.min.js') }}" nonce="{{ csp_nonce('script') }}"></script>
+    <script nonce="{{ csp_nonce('script') }}">
+        $(function () {
+            map.init({{ collectionPoints|json_encode|raw }}, '{{ mapboxToken }}')
+        });
+    </script>
+{% endblock %}

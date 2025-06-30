@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block document %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                <div class="login-logo">
+                    <img src="{{ asset('img/alab_logo_big.png') }}" height="50" width="222" alt="{{ defaults.title }}">
+                </div>
+                <div class="login-panel panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Resetuj hasło</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="alert alert-info">
+                            <span class="fas fa-fw fa-info-circle"></span>
+                            Wpisz w poniższym polu swój login lub adres e-mail.
+                        </div>
+
+                        {% if error is defined %}
+                            <div class="alert alert-danger">
+                                <span class="fas fa-fw fa-exclamation-circle"></span>
+                                {{ error }}
+                            </div>
+                        {% endif %}
+
+                        {% if info is defined %}
+                            <div class="alert alert-success">
+                                <span class="fas fa-fw fa-check"></span>
+                                {{ info }}
+                            </div>
+                        {% endif %}
+
+                        {{ form_errors(form) }}
+
+                        {{ form_start(form) }}
+                        <fieldset class="form">
+                            {{ form_widget(form.username) }}
+                            {{ form_row(form._token) }}
+                            <div class="mb-10 mr-block"></div>
+                            <button class="btn btn-primary btn-block" id="recover_save" title="Resetuj hasło" data-toggle="tooltip">Resetuj hasło</button>
+                            <p class="text-center">
+                                <br>
+                                <a href="{{ path('login') }}" title="Formularz logowania" data-toggle="tooltip">Zaloguj się</a>
+                            </p>
+                        </fieldset>
+                        {{ form_end(form, {'render_rest': false}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

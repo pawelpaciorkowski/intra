@@ -1,0 +1,42 @@
+<div class="panel panel-cyan">
+    <div class="panel-heading">
+        <div class="pull-right data-delete" {% if security.hasAccess('user-delete') %}data-name="{{ user.getFullname }}" data-subject="użytkownika" data-delete-action="{{ path('user-delete', {'id': user.id}) }}"{% endif %}>
+            {% if security.hasAccess('user-update') %}
+                <a href="{{ path('user-update', {'id': user.id}) }}" class="btn btn-primary btn-xs inline-xs-margin-left" data-toggle="tooltip" title="<strong>Utworzono</strong>: {{ user.createdAt|format_datetime('short') }}<br><strong>Zmieniono</strong>: {{ user.updatedAt|format_datetime('short') }}"><span class="fas fa-fw fa-pencil-alt"></span></a>
+            {% endif %}
+            {% if security.hasAccess('user-delete') %}
+                <button class="btn btn-danger btn-xs row-delete inline-xs-margin-left" data-title="Delete" data-toggle="tooltip" title="Usuń">
+                    <span class="fas fa-fw fa-trash-alt"></span>
+                </button>
+            {% endif %}
+        </div>
+        <a data-toggle="collapse" data-parent="#accordionUser" href="#collapseUser{{ user.id }}">{{ user.team.name }}</a>
+    </div>
+    <div id="collapseUser{{ user.id }}" class="panel-collapse collapse {% if not collapsed|default %}in{% endif %}">
+        <table class="table table-striped th-right">
+            <tr>
+                <th>Imię i nazwisko</th>
+                <td>
+                    {{ user.getFullname }}
+                </td>
+            </tr>
+            {% if user.email %}
+                <tr>
+                    <th>E-mail</th>
+                    <td><a href="mailto:{{ user.email }}" data-toggle="tooltip" title="napisz e-mail" class="text-alternative">{{ user.email }}</a></td>
+                </tr>
+            {% endif %}
+            {% if user.phones|length %}
+                <tr>
+                    <th>Telefony</th>
+                    <td>
+                        {% for phone in user.phones %}
+                            <a href="callto:{{ phone.number }}" class="text-alternative">{{ phone.number }}</a>
+                            {%- if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+</div>

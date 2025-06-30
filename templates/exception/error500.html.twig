@@ -1,0 +1,13 @@
+{% extends 'error.html.twig' %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>Błąd wewnętrzny</h1>
+    </div>
+    <p>
+        Wskazana strona nie może być wyświetlona.<br>
+        <br>
+        <a href="{{ path('dashboard') }}">Przejdź do strony głównej</a>.
+    </p>
+    <small>Kod błędu {{ code }}, {{ "now" }}, IP: {{ app.request.server.get("REMOTE_ADDR") }}</small>
+{% endblock %}

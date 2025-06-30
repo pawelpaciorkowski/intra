@@ -1,0 +1,15 @@
+{% if text|length > max %}
+    <div class="text-expandable">
+        {% set l = 0 %}
+        {% for t in text|split(' ') -%}
+            {{- t ~ ' ' -}}
+            {%- if l + t|length + 1 > max and l < max -%}
+                <button class="btn btn-xs btn-default" data-toggle="tooltip" title="pokaż pozostały tekst">&hellip;</button><span class="hidden">
+            {%- endif -%}
+            {%- set l = l + t|length -%}
+        {%- endfor %}
+    </span>
+    </div>
+{% else %}
+    {{ text }}
+{% endif %}

@@ -1,0 +1,20 @@
+{% extends 'partials/form.html.twig' %}
+
+{% block form %}
+
+    {% include 'partials/_form_errors.html.twig' %}
+
+    {{ form_start(form) }}
+
+    {{ form_errors(form) }}
+
+    {{ form_row(form.isActive) }}
+    {{ form_row(form.title) }}
+    {{ form_row(form.content) }}
+
+    {{ form_row(form._token) }}
+    {{ form_row(form.save) }}
+
+    {{ form_end(form, {'render_rest': false}) }}
+
+{% endblock %}

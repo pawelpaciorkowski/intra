@@ -1,0 +1,32 @@
+<ol class="breadcrumb">
+    <li class="breadcrumb__site">
+        <span data-toggle="tooltip" data-placement="bottom" title="Używasz serwisu o nazwie INTRANET">INTRANET</span>
+    </li>
+    <li><a href="{{ path("dashboard") }}"><span class="fas fa-fw fa-tachometer-alt"></span>&nbsp;Dashboard</a></li>
+
+    {% for element in menus.getSelectedPath(app.user ? app.user: null) %}
+        {% if element.link is not empty and (breadcrumb.all is not empty or breadcrumb is defined) %}
+            {% if security.hasAccess(element.link.name) %}
+                <li><a href="{{ path(element.link.name) }}">{{ element.name }}</a></li>
+            {% else %}
+                <li>{{ element.getName }}</li>
+            {% endif %}
+        {% else %}
+            <li class="active">{{ element.getName }}</li>
+        {% endif %}
+    {% endfor %}
+
+    {% if breadcrumb is defined %}
+        {% for element in breadcrumb %}
+            {% if element.link %}
+                <li><a href="{{ element.link }}">{{ element.name }}</a></li>
+            {% else %}
+                <li>{{ element.name }}</li>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% for element in breadcrumb.all %}
+        <li class="active">{{ element }}</li>
+    {% endfor %}
+</ol>

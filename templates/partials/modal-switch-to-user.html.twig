@@ -1,0 +1,40 @@
+<div class="modal fade" id="switch-user-modal" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title custom_align" id="Heading">Przełączenie użytkownika</h4>
+            </div>
+            <div class="modal-body">
+                <form method="get" class="form-group" action="{{ path('dashboard') }}" role="form">
+                    <div class="form-group">
+                        <label class="control-label required" for="_switch_user">Wybierz użytkownika, na którego chcesz się przełączyć</label>
+                        <select name="_switch_user" id="_switch_user" data-live-search="true">
+                            <option value="">-- wybierz --</option>
+                            {% set team = null %}
+                            {% for user in users.findAllByParams({isActive: 1, orderBy: 't.name', return_array: true}) %}
+                                {% if team != user.team.name %}
+                                    {% if team != null %}
+                                        </optgroup>
+                                    {% endif %}
+                                    <optgroup label="{{ user.team.name }}">
+                                    {% set team = user.team.name %}
+                                {% endif %}
+                                <option value="{{ user.username }}" data-subtext="login: {{ user.username }}">{{ user.name~' '~user.surname }}</option>
+                            {% endfor %}
+                            </optgroup>
+                        </select>
+                    </div>
+                    <button type="submit" name="_switch_user" class="hidden">
+                        Przełącz
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer ">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Anuluj</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

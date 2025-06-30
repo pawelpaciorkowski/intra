@@ -1,0 +1,233 @@
+<div class="panel panel-teal" data-id="{{ laboratory.id }}" data-subject="laboratory">
+    <div class="panel-heading">
+        <div class="pull-right">
+            {% if security.hasAccess('laboratory-view') and showCardLink|default %}
+                <a href="{{ path('laboratory-view', {'id': laboratory.id}) }}" class="btn btn-default btn-xs" data-toggle="tooltip" title="Zobacz kartę">Karta</a>
+            {% endif %}
+        </div>
+        <a data-toggle="collapse" data-parent="#accordionLaboratory" href="#collapseLaboratory{{ laboratory.id }}">{{ laboratory.name }}</a>
+    </div>
+    <div id="collapseLaboratory{{ laboratory.id }}" class="panel-collapse collapse {% if not collapsed|default %}in{% endif %}">
+        <table class="table table-striped th-right">
+            <tr>
+                <th>Aktywne</th>
+                <td>
+                    {% if laboratory.isActive %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Symbol</th>
+                <td>{{ laboratory.symbol }}</td>
+            </tr>
+            <tr>
+                <th>Prefiks</th>
+                <td>{{ laboratory.prefix }}</td>
+            </tr>
+            <tr>
+                <th>Numer księgi rejestrowej</th>
+                <td>
+                    {% if laboratory.registerBook %}
+                        {{ "%012d"|format(laboratory.registerBook) }}
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>TERYT</th>
+                <td>
+                    {% if laboratory.teryt %}
+                        {{ "%07d"|format(laboratory.teryt) }}
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Komórka organizacyjna</th>
+                <td>
+                    {% if laboratory.organizationalUnit %}
+                        {{ "%03d"|format(laboratory.organizationalUnit) }}
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Nazwa</th>
+                <td>{{ laboratory.name }}</td>
+            </tr>
+            <tr>
+                <th>E-mail</th>
+                <td>
+                    {% if laboratory.email %}
+                        <a href="mailto:{{ laboratory.email }}">{{ laboratory.email }}</a>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>MPK</th>
+                <td>{{ laboratory.mpk }}</td>
+            </tr>
+            <tr>
+                <th>Region</th>
+                <td>
+                    {% if laboratory.region %}
+                        {% if security.hasAccess('region-update') %}
+                            <a href="{{ path('region-update', {'id': laboratory.region.id}) }}" class="text-alternative">{{ laboratory.region.name }}</a>
+                        {% elseif security.hasAccess('laboratory-view') %}
+                            <a href="{{ path('laboratory-view', {'id': laboratory.id}) }}">{{ laboratory.region.name }}</a>
+                        {% else %}
+                            {{ laboratory.region.name }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Adres</th>
+                <td>{{ laboratory.streetType.short|default }} {{ laboratory.street }}</td>
+            </tr>
+            <tr>
+                <th>Miejscowość</th>
+                <td>{{ laboratory.city.name|default }}</td>
+            </tr>
+            <tr>
+                <th>Kod pocztowy</th>
+                <td>{{ laboratory.postalCode }}</td>
+            </tr>
+            <tr>
+                <th>Telefony</th>
+                <td>
+                    {% for phone in laboratory.phones %}
+                        <a href="callto:{{ phone.number }}" class="text-alternative" title="zadzwoń na ten numer" data-toggle="tooltip">{{ phone.number }}</a>
+                        {%- if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th>Bazy danych</th>
+                <td>
+                    {% for database in laboratory.databases -%}
+                        {{ database.ip }}:{{ database.name }}
+                        {%- if not loop.last %}, {% endif -%}
+                    {%- endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th>Centrum Rozliczeniowe</th>
+                <td>
+                    {% if laboratory.billingCenter %}
+                        {% if security.hasAccess('billing-center-update') %}
+                            <a href="{{ path('billing-center-update', {'id': laboratory.billingCenter.id}) }}" class="text-alternative">{{ laboratory.billingCenter.name }}</a>
+                        {% elseif security.hasAccess('laboratory-view') %}
+                            <a href="{{ path('laboratory-view', {'id': laboratory.id}) }}">{{ laboratory.billingCenter.name }}</a>
+                        {% else %}
+                            {{ laboratory.billingCenter.name }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Szpitalne</th>
+                <td>
+                    {% if laboratory.isHospital %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Punkt pobrań w laboratorium</th>
+                <td>
+                    {% if laboratory.isCollectionPoint %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Punkt obsługi klienta</th>
+                <td>
+                    {% if laboratory.customerService %}
+                        {% if security.hasAccess('customer-service-view') %}
+                            <a href="{{ path('customer-service-view', {'id': laboratory.customerService.id}) }}" class="text-alternative">{{ laboratory.customerService.name }}</a>
+                        {% elseif security.hasAccess('laboratory-view') %}
+                            <a href="{{ path('laboratory-view', {'id': laboratory.id}) }}">{{ laboratory.customerService.name }}</a>
+                        {% else %}
+                            {{ laboratory.customerService.name }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Pracuje w sobotę</th>
+                <td>
+                    {% if laboratory.isOpenInSaturday %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Pracuje w niedzielę</th>
+                <td>
+                    {% if laboratory.isOpenInSunday %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Pracuje w dni świąteczne</th>
+                <td>
+                    {% if laboratory.isOpenInHoliday %}
+                        <span class="fas fa-check"></span>
+                    {% else %}
+                        <span class="fas fa-minus"></span>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        <div class="panel-heading panel-heading-alternative">
+            Godziny pracy
+        </div>
+        {% set hasPeriods = false %}
+        {% set content %}
+            <table class="table table-striped th-right">
+                {% set day = null %}
+                {% for period in laboratory.periods %}
+                    {% set hasPeriods = true %}
+                    {% if day != period.dayOfWeek %}
+                        {% if day != null %}</td></tr>{%- endif %}
+                        {% set day = period.dayOfWeek %}
+                        <tr>
+                            <th>{{ period.dayOfWeek.name }}</th>
+                            <td>
+                    {% else %}<br>
+                    {% endif %}
+                    {% if period.isAllDay %}
+                        całodobowo
+                    {% else %}
+                        {{ period.startAt|format_time('short') }} - {{ period.endAt|format_time('short') }}
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            </table>
+        {% endset %}
+        {% if hasPeriods %}
+            {{ content }}
+        {% else %}
+            <p class="alert alert-warning no-margin-bottom">Brak danych</p>
+        {% endif %}
+    </div>
+</div>

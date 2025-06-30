@@ -1,0 +1,40 @@
+nelmio_security:
+    # prevents framing of the entire site
+    clickjacking:
+        paths:
+            '^/.*': DENY
+
+    # disables content type sniffing for script resources
+    content_type:
+        nosniff: true
+
+    # Send a full URL in the `Referer` header when performing a same-origin request,
+    # only send the origin of the document to secure destination (HTTPS->HTTPS),
+    # and send no header to a less secure destination (HTTPS->HTTP).
+    # If `strict-origin-when-cross-origin` is not supported, use `no-referrer` policy,
+    # no referrer information is sent along with requests.
+    referrer_policy:
+        enabled: true
+        policies:
+            - 'no-referrer'
+            - 'strict-origin-when-cross-origin'
+    csp:
+        hash:
+            algorithm: sha512 # default is sha256, available are sha256, sha384 and sha512
+        enforce:
+            # Provides compatibility with CSP level 1 (old / non-yet-compatible browsers) when using CSP level 2
+            # features likes hash and nonce. It adds a 'unsafe-inline' source to a directive whenever a nonce or hash
+            # is used.
+            # From RFC: " If 'unsafe-inline' is not in the list of allowed style sources, or if at least one
+            #             nonce-source or hash-source is present in the list of allowed style sources "
+            # See https://www.w3.org/TR/CSP2/#directive-style-src and https://www.w3.org/TR/CSP2/#directive-script-src
+            level1_fallback: true
+            default-src: ['self', '*.mapbox.com', '*.google.com', '*.gstatic.com']
+            frame-src: ['self', '*.youtube.com', '*.alab.com.pl', '*.alablaboratoria.pl']
+            img-src: ['*', 'data:']
+            style-src: ['self', 'unsafe-inline', '*.mapbox.com', '*.google.com', '*.googleapis.com', 'skk.erecruiter.pl', 'use.fontawesome.com']
+            font-src: ['self', 'use.fontawesome.com']
+            script-src: ['self', 'unsafe-inline', '*.googleapis.com', '*.mapbox.com', '*.google.com', '*.gstatic.com', 'skk.erecruiter.pl']
+            connect-src: ['self', '*.mapbox.com', '*.googleapis.com']
+            worker-src: ["'self'", 'blob:']
+            upgrade-insecure-requests: false

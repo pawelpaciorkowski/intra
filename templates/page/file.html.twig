@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/modal-delete.html.twig' %}
+    {% include 'partials/list-header.html.twig' with {'action': 'page-category-create', 'actionId': page.id, 'noFilter': true, 'actionText': '<span class="fas fa-fw fa-plus"></span> dodaj kategorię'} %}
+
+    {% if rows %}
+        <div class="alab-sortable-tree" data-handler="page-category">
+            <ol>
+                <li class="head" id="0"><a href="#" class="move hidden"></a>Kategorie</li>
+
+                {% set depth = 0 %}
+                {% for row in rows %}
+
+                    {% set data = 'id="page-category_' ~ row.id ~ '" data-delete-action="' ~ path('page-category-delete', {'id': page.id, 'pageCategory': row.id}) ~ '" data-name="' ~ row.getName ~ '" data-subject="kategorię" data-type="page-category"' %}
+                    {% if loop.first %}
+                        <li {{ data|raw }}>
+                    {% elseif row.depth < depth %}
+                        {% for i in row.depth..(depth-1) %}
+                            </li></ol>
+                        {% endfor %}
+
+                        <li {{ data|raw }}>
+                    {% elseif row.depth > depth %}
+                        {% for i in depth..(row.depth-1) %}
+                            <ol>
+                                <li {{ data|raw }}>
+                        {% endfor %}
+                    {% else %}
+                        </li>
+                            <li {{ data|raw }}>
+                    {% endif %}
+
+                    <a class="move btn btn-warning"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                    <a href="{{ path('page-category-update', {'id': page.id, 'pageCategory': row.id}) }}"{% if not row.isActive %} class="inactive"{% endif %}>
+                        {{ row.getName }}
+                    </a>
+
+                    <div class="pull-right">
+                        <a href="{{ path('page-file-create', {'id': page.id, 'page-category-id': row.id}) }}" class="btn btn-success btn-xs" data-toggle="tooltip">
+                            <span class="fas fa-fw fa-plus"></span> plik
+                        </a>
+                        <a href="{{ path('page-category-update', {'id': page.id, 'pageCategory': row.id}) }}" class="btn btn-primary btn-xs inline-xs-margin-left" data-toggle="tooltip" title="<strong>Utworzono</strong>: {{ row.createdAt|format_datetime('short') }}<br><strong>Zmieniono</strong>: {{ row.updatedAt|format_datetime('short') }}">
+                            <span class="fas fa-fw fa-pencil-alt"></span>
+                        </a>
+                        <button class="btn btn-danger btn-xs row-delete inline-xs-margin-left" data-title="Delete" data-toggle="tooltip" title="Usuń">
+                            <span class="fas fa-fw fa-trash-alt"></span>
+                        </button>
+                    </div>
+
+                    {% if row.PageFiles|length %}
+                        <div class="alab-sortable-page-files" data-handler="page-file">
+                            <ol>
+                                <li class="head" id="0"><a href="#" class="move hidden"></a>Pliki</li>
+                                {% for pageFile in row.PageFiles %}
+                                    <li id="page-file_{{ pageFile.id }}" data-delete-action="{{ path('page-file-delete', {'id': page.id, 'pageFile': pageFile.id}) }}" data-name="{{ pageFile.name }}" data-subject="plik" data-type="page-file" data-id="{{ pageFile.id }}">
+                                        <a class="move btn btn-info"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                                        <a href="{{ path('page-file-update', {'id': page.id, 'pageFile': pageFile.id}) }}"{% if not row.isActive %} class="inactive"{% endif %}>
+                                            {{ pageFile.name }}
+                                        </a>
+                                        <div class="pull-right">
+                                            <a href="{{ path('page-file-update', {'id': page.id, 'pageFile': pageFile.id}) }}" class="btn btn-primary btn-xs" data-toggle="tooltip" title="<strong>Utworzono</strong>: {{ pageFile.createdAt|format_datetime('short') }}<br><strong>Zmieniono</strong>: {{ pageFile.updatedAt|format_datetime('short') }}">
+                                                <span class="fas fa-fw fa-pencil-alt"></span>
+                                            </a>
+                                            <button class="btn btn-danger btn-xs row-delete inline-xs-margin-left" data-title="Delete" data-toggle="tooltip" title="Usuń">
+                                                <span class="fas fa-fw fa-trash-alt"></span>
+                                            </button>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    {% endif %}
+
+                    {% set depth = row.depth %}
+
+                    {% if loop.last %}
+                        {% for i in row.depth..depth %}
+                            </li></ol>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <span class="fas fa-exclamation-circle"></span> Nie znaleziono żadnej kategorii.<br><br>
+            <a href="{{ path(app.request.attributes.get('_route'), {'id': page.id}) }}" class="alert-link">Pokaż wszystko</a>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.nestedSortable.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/list-header-public.html.twig' with {'noFilter': true} %}
+
+    <div class="container">
+
+        {% if status %}
+            <p class="alert alert-info">Wiadomość wysłana.</p>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-8">
+                {{ form(form) }}
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/tinymce/tinymce.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+    <script src="{{ prefetch(asset('js/alab.tinymce.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h1>
+                    Twój profil
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    {% include 'partials/_form_errors.html.twig' %}
+
+    {{ form_start(form) }}
+
+    {{ form_errors(form) }}
+
+    {{ form_row(form.username) }}
+    {{ form_row(form.email) }}
+    {{ form_row(form.file) }}
+    <hr>
+    {{ form_row(form.oldPassword) }}
+    {{ form_row(form.newPassword) }}
+    {{ form_row(form.save) }}
+
+    {{ form_end(form) }}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.pwstrength.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/list-header.html.twig' with {'noFilter': true} %}
+
+    <p class="alert alert-info">
+        Importowany plik musi mieć poprawny format.<br>
+        Musi to być plik XLSX, z dwoma zakładkami.<br>
+        Plik nie może zawierać żadnych formuł.<br>
+        Wzór pliku dostępy jest <a href="{{ asset('employee/pracownicy_Intranet_przykład.xlsx') }}">tutaj</a>.
+    </p>
+    {{ form(form) }}
+
+{% endblock %}
+

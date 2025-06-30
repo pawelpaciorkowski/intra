@@ -1,0 +1,103 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+    <div class="container">
+
+        {% include 'partials/list-header-public.html.twig' with {'className': 'page-header--employee'} %}
+
+        <div class="row">
+            <div class="col-md-5">
+                {% if departments %}
+                    <ol class="employee--departments">
+                        {% set depth = 0 %}
+                        {% for department in departments %}
+
+                            {% if loop.first %}
+                                <li>
+                            {% elseif department.depth < depth %}
+                                {% for i in department.depth..(depth-1) %}
+                                    </li>
+                                </ol>
+                                {% endfor %}
+                                <li>
+                            {% elseif department.depth > depth %}
+                                {% for i in depth..(department.depth-1) %}
+                                    <ol>
+                                        <li>
+                                {% endfor %}
+                            {% else %}
+                                </li>
+                                <li>
+                            {% endif %}
+
+                            {% set depth = department.depth %}
+                            <a href="#" title="Zobacz pracowników w tym departamencie" data-toggle="tooltip" data-lft="{{ department.lft }}" data-rgt="{{ department.rgt }}">{{ department.getName }}</a>
+
+                            {% if loop.last %}
+                                {% for i in department.depth..depth %}
+                                    </li>
+                                </ol>
+                                {% endfor %}
+                            {% endif %}
+
+                        {% endfor %}
+                {% else %}
+                    <p class="alert alert-warning mt-4" role="alert">
+                        <span class="fas fa-exclamation-circle"></span> Nie znaleziono żadnego pracownika.
+                    </p>
+                {% endif %}
+            </div>
+            <div class="col-md-7">
+                <p class="alert alert-info employee--list-info">
+                    Wybierz departament lub wyszukaj pracowników aby zobaczyć listę.
+                </p>
+                <p class="alert alert-warning employee--list-not_found hidden">
+                    Nie znaleziono pracowników.
+                </p>
+                <ul class="employee--list hidden" data-template="<li>              
+                        <div>
+                            <div class='employee--fullname'>#fullname#</div>
+                            <div class='employee--position'>#position#</div>
+                            <div class='employee--department'>#department#</div>
+                            <div class='employee--email'>#email#</div>
+                            <div class='employee--phones'>#phones#</div>
+                        </div>
+                    </li>">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script nonce="{{ csp_nonce('script') }}">
+        const employees = [
+            {% for employee in employees %}
+            {
+                'name': '{{ employee.name }}',
+                'surname': '{{ employee.surname }}',
+                'email': '{{ employee.email }}',
+                'position': '{{ employee.position }}',
+                'phones': [
+                    {% for phone in employee.phones %}
+                        '{{ phone.number }}',
+                    {% endfor %}
+                ],
+                'departments': [
+                    {% for department in employee.departments %}
+                        {
+                        'lft': {{ department.lft|default(0) }},
+                        'rgt': {{ department.rgt|default(0) }},
+                        'name': '{{ department.name|default('') }}'
+                        },
+                    {% endfor %}
+                ]
+            },
+            {% endfor %}
+        ];
+    </script>
+
+    <script src="{{ prefetch(asset('js/alab.nestedSortable.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

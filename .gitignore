@@ -1,0 +1,36 @@
+###> symfony/framework-bundle ###
+/bin/*
+/.env.test
+/.env.local
+/.env.*.local
+/public/bundles/
+/public/upload/
+/var/
+/vendor/
+/data/
+/src/Command/Tools/
+###< symfony/framework-bundle ###
+
+/.idea/
+!/bin/scripts
+/public/bundles
+/src/Command/Tools
+/config/secrets/prod/prod.decrypt.private.php
+
+###> friendsofphp/php-cs-fixer ###
+/.php_cs.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> liip/imagine-bundle ###
+/public/media/cache/
+###< liip/imagine-bundle ###
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###

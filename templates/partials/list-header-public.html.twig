@@ -1,0 +1,49 @@
+<div class="page-header {{ className|default }}">
+    <div class="row">
+        <div class="col-lg-{% if noFilter is not defined or customFilter is defined %}{% if optionAdditionalContent is defined %}4{% elseif customFilter is defined %}9{% else %}6{% endif %}{% else %}12{% endif %}">
+            <h1 class="pt-5">
+                {% if breadcrumb.all %}
+                    {{ breadcrumb.all|last }}
+                {% elseif categories.getSelectedLeaf(app.user) %}
+                    {{ categories.getSelectedLeaf(app.user).getName }}
+                {% endif %}
+                {% if subtitle is defined and subtitle|length %} - {{ subtitle }}{% endif %}
+
+                {% block customAction %}{% endblock %}
+            </h1>
+            {% if action is defined and security.hasAccess(action) %}
+                <a href="{% if actionId is defined %}{{ path(action, {'id': actionId}) }}{% else %}{{ path(action) }}{% endif %}" class="btn btn-success btn-xs">
+                    {% if actionText|default %}
+                        {{ actionText }}
+                    {% else %}
+                        <span class="fas fa-fw fa-plus"></span> dodaj
+                    {% endif %}
+                </a>
+            {% endif %}
+            {% if smallText is defined %}
+                <h2>{{ smallText }}</h2>
+            {% endif %}
+        </div>
+        {% if customFilter is defined %}
+            <div class="col-lg-3 text-right">
+                {{ customFilter }}
+            </div>
+        {% elseif noFilter is not defined %}
+            {% if optionAdditionalContent is defined %}
+                <div class="col-lg-4 mb-10" style="text-align: center">{{ optionAdditionalContent }}</div>
+            {% endif %}
+
+            <div class="col-lg-{% if optionAdditionalContent is defined %}4{% else %}6{% endif %} text-right">
+                <form class="form-inline no-wait-button" action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}" role="form">
+                    {% block headerFilter %}
+                        <div class="form-search">
+                            <input type="text" class="flex-grow" name="query" value="{{ app.request.get('query') }}" placeholder="Szukaj...">
+                            <button title="szukaj" data-toggle="tooltip">Szukaj</button>
+                        </div>
+                    {% endblock %}
+                    {% block action %}{% endblock %}
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>

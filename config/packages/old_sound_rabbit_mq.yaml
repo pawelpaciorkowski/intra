@@ -1,0 +1,45 @@
+old_sound_rabbit_mq:
+  connections:
+    skarbiec:
+      url: '%env(RABBITMQ_URL)%'
+      lazy: true
+      connection_timeout: 10
+      read_write_timeout: 10
+    hub:
+      url: '%env(RABBITMQ_URL_HUB)%'
+      lazy: true
+      connection_timeout: 10
+      read_write_timeout: 10
+  producers:
+    garbage:
+      connection: hub
+      exchange_options:
+        name: 'internal.garbage'
+        type: direct
+      queue_options:
+        name: 'internal.garbage'
+    inbox:
+      connection: hub
+      exchange_options:
+        name: 'inbox'
+        type: direct
+        arguments: { alternate_exchange: [ 'S', 'internal.garbage' ] }
+      queue_options:
+        name: 'outbox.app.name:psajdak'
+        routing_keys:
+          - 'app.name:psajdak'
+        arguments:
+          x-queue-type: [ 'S', 'quorum' ]
+  consumers:
+    bus:
+      connection: skarbiec
+      exchange_options: { name: 'intranet', type: direct }
+      queue_options: { name: 'intranet' }
+      callback: App\Consumer\MessageConsumer
+      graceful_max_execution:
+        timeout: 300
+        exit_code: 10
+      qos_options:
+        prefetch_size: 0,
+        prefetch_count: 1
+        global: false

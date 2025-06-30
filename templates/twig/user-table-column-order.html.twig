@@ -1,0 +1,11 @@
+<a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)|merge({"sort": column})|merge({"direction": direction})) }}"
+   title="sortuj wg tej kolumny" data-toggle="tooltip">
+    {{ title|raw }}
+    {% if selected %}
+        {% if direction %}
+            <span class="fas fa-fw fa-arrow-up"></span>
+        {% else %}
+            <span class="fas fa-fw fa-arrow-down"></span>
+        {% endif %}
+    {% endif %}
+</a>

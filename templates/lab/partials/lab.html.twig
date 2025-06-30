@@ -1,0 +1,30 @@
+<div class="panel panel-yellow" data-id="{{ lab.id }}" data-subject="lab">
+    <div class="panel-heading">
+        <div class="pull-right data-delete" {% if security.hasAccess('lab-delete') %}data-name="{{ lab.name }}" data-subject="pracownię" data-delete-action="{{ path('lab-delete', {'id': lab.id}) }}"{% endif %}>
+            {% if security.hasAccess('lab-view') and showCardLink|default %}
+                <a href="{{ path('lab-view', {'id': lab.id}) }}" class="btn btn-default btn-xs" data-toggle="tooltip" title="Zobacz kartę">Karta</a>
+            {% endif %}
+        </div>
+        <a data-toggle="collapse" data-parent="#accordionLab" href="#collapseLab{{ lab.id }}">{{ lab.name }}</a>
+    </div>
+    <div id="collapseLab{{ lab.id }}" class="panel-collapse collapse {% if not collapsed|default %}in{% endif %}">
+        <table class="table table-striped th-right">
+            <tr>
+                <th>Nazwa</th>
+                <td>{{ lab.name }}</td>
+            </tr>
+            <tr>
+                <th>Grupa</th>
+                <td>
+                    {% if lab.labGroup %}
+                        {{ lab.labGroup.name }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Symbol</th>
+                <td>{{ lab.symbol }}</td>
+            </tr>
+        </table>
+    </div>
+</div>

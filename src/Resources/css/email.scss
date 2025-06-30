@@ -1,0 +1,47 @@
+body,
+html,
+.body {
+  background: #f3f3f3 !important;
+}
+
+.container.header {
+  background: #f3f3f3;
+}
+
+.body-border {
+  border-top: 8px solid #FFA400;
+}
+
+table.data {
+  tr {
+    padding: 0;
+    margin: 0;
+  }
+
+  th, td {
+    margin: 0;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  th {
+    color: #fff;
+    background: #2199e8;
+    border: 1px solid #fff;
+  }
+
+  td {
+    border: 1px solid #2199e8;
+
+    &.alert {
+      color: #ffffff;
+      background: #e23317;
+    }
+
+    &.warning {
+      background: #ffae00;
+    }
+  }
+
+}

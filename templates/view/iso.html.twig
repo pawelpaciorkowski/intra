@@ -1,0 +1,16 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-20 search-results file-tree iso">
+
+    {% include 'partials/list-header-public.html.twig' with {'noFilter': true} %}
+
+    {{ special|raw }}
+
+    {% include 'view/_tree.html.twig' with {
+        'pathDownload': 'iso-download'
+    } %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,224 @@
+{% apply spaceless %}<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ defaults.title }}">
+    <meta name="author" content="Alab Laboratoria">
+    <meta name="theme-color" content="#2E3F52">
+    <title>{% if breadcrumb.all %}
+            {{ breadcrumb.all|last }} -
+        {% elseif categories.getSelectedLeaf(app.user) %}
+            {{ categories.getSelectedLeaf(app.user).getName }} -
+        {% endif %}
+        {% if subtitle is defined and subtitle %} {{ subtitle }} - {% endif %} {{ defaults.title }}</title>
+
+    {% block stylesheets %}{% endblock %}
+    <link href="{{ prefetch(asset('css/alab-public.min.css')) }}" rel="stylesheet" nonce="{{ csp_nonce('script') }}">
+
+    <!--[if IE]>
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <![endif]-->
+    <link rel="icon" href="{{ asset('favicon-196.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('apple-touch-icon-76.png') }}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('apple-touch-icon-120.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('apple-touch-icon-152.png') }}">
+</head>
+<body role="document">
+
+    <nav class="navbar navbar-fixed-top">
+        <div class="container navbar-menu">
+            <div class="navbar-header">
+                <a class="navbar-brand " href="{{ path('dashboard-public') }}" title="przejdź na stronę główną">
+                    <img src="{{ asset('img/alab_logo_2.svg') }}"  alt="">
+                </a>
+                <div class="flex-grow">
+                    <div class="d-flex flex-justify-end flex-align-center">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <div class="d-flex d-lg-none">
+                            <a href="#" class="icon" title="szukaj" data-toggle="search">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke="#04387c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </a>
+                            <a href="{{ path('login') }}" class="icon ml-10" title="zaloguj się">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.1992 12C14.9606 12 17.1992 9.76142 17.1992 7C17.1992 4.23858 14.9606 2 12.1992 2C9.43779 2 7.19922 4.23858 7.19922 7C7.19922 9.76142 9.43779 12 12.1992 12Z" stroke="#04387c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 22C3.57038 20.0332 4.74796 18.2971 6.3644 17.0399C7.98083 15.7827 9.95335 15.0687 12 15C16.12 15 19.63 17.91 21 22" stroke="#04387c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </a>
+                            {% if app.user %}
+                                <a href="{{ path('dashboard') }}" class="icon ml-10" title="strona główna panelu administracyjnego">
+                                    <div class="badge badge-info">
+                                        <span class="fas fa-share fa-fw"></span> CMS
+                                    </div>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse flex-grow">
+                <ul class="nav navbar-nav navbar-right">
+                    {% set depth = 0 %}
+                    {% set isHideChildrenForDepthAbove = 100 %}
+                    {% for row in categories.findAllByParams({'is-active': true, withAuthUser: true, return_array: true, cached: true, cacheTag: 'category', user: app.user, maxDepth: 3}) %}
+                    
+                        {% if row.depth <= isHideChildrenForDepthAbove %}
+                            {% if not row.isShowChildren %}
+                                {% set isHideChildrenForDepthAbove = row.depth %}
+                            {% endif %}
+
+{#                        {% if row.depth == 0 or (row.depth == 1 and row.lft == row.rgt - 1) %}#}
+                            {% set link = '#' %}
+                            {% if row.url %}
+                                {% set link = row.url %}
+                            {% elseif row.page %}
+                                {% set link = url('page-view', {'id': row.page.id}) %}
+                            {% elseif row.link %}
+                                {% set link = path(row.link.name) %}
+                            {% else %}
+                                {% set link = url('category-view', {'id': row.id}) %}
+                            {% endif %}
+
+                            {% set selectedCategory = categories.getSelectedLeaf(app.user) %}
+
+                            {% if not loop.first %}
+                                {% if row.depth < depth %}
+                                    {% for i in row.depth..(depth - 1) %}
+                                        </ul>
+                                    {% endfor %}
+                                {% endif %}
+                                </li>
+                            {% endif %}
+
+                            {% if row.lft + 1 == row.rgt or isHideChildrenForDepthAbove == row.depth %}
+                                <li>
+                                    <a href="{{ link }}">
+                                        {% if row.additionalIcon %}
+                                            <span class="fas fa-{{ row.additionalIcon.name }} fa-fw pull-right"></span>
+                                        {% endif %}
+                                        {% if row.icon %}
+                                            <span class="fas fa-{{ row.icon.name }} fa-fw"></span>
+                                        {% endif %}
+                                        {{ row.name }}
+                                    </a>
+                            {% else %}
+                                {% set s = false %}
+                                    {% if selectedCategory and row.lft <= selectedCategory.lft and row.rgt >= selectedCategory.rgt %}
+                                        {% set s = true %}
+                                    {% endif %}
+
+                                <li class="dropdown">
+                                    <a href="#" data-toggle="dropdown" aria-expanded="{{ s?'true':'false' }}" class="dropdown-toggle" id="category-{{ row.id }}">
+                                        {% if row.additionalIcon %}
+                                            <span class="fas fa-{{ row.additionalIcon.name }} fa-fw pull-right"></span>
+                                        {% endif %}
+                                        {% if row.icon %}
+                                            <span class="fas fa-fw fa-{{ row.icon.name }}"></span>
+                                        {% endif %}
+                                        {{ row.name }}
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="category-{{ row.id }}">
+                                        {% endif %}
+
+                                        {% if loop.last %}
+                                        {% for i in row.depth..1 %}
+                                            </li></ul>
+                                        {% endfor %}
+                                </li>
+                            {% endif %}
+
+                            {% set depth = row.depth %}
+{#                        {% endif %}#}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="ml-10 d-none d-lg-block">
+                <a href="#search" class="icon" title="szukaj" data-toggle="search">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke="#04387c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+            </div>
+            <div class="ml-10 d-none d-lg-block">
+                <a href="{{ path('login') }}" class="icon" title="zaloguj się">
+                    <svg viewBox="0 0 29.1 25.8" fill="currentColor" width="20" widxml:space="preserve" xmlns="http://www.w3.org/2000/svg" class="transition-ease-in-out inline h-5 hover:brightness-50"><path xmlns="http://www.w3.org/2000/svg" d="M25.2 25.9c-.6 0-1-.4-1-1v-2.7c0-1.1-.5-2.3-1.3-3.1-.8-.8-2-1.3-3.1-1.3H9.2c-1.1 0-2.3.5-3.1 1.3s-1.3 2-1.3 3.1v2.7c0 .6-.4 1-1 1s-1-.4-1-1v-2.7c0-1.7.7-3.3 1.9-4.5 1.2-1.2 2.8-1.9 4.5-1.9h10.6c1.7 0 3.3.7 4.5 1.9s1.9 2.8 1.9 4.5v2.7c0 .6-.4 1-1 1zM14.5 12.6c-3.5 0-6.3-2.8-6.3-6.3S11 0 14.5 0s6.3 2.8 6.3 6.3-2.8 6.3-6.3 6.3zm0-10.6c-2.3 0-4.3 2-4.3 4.3s2 4.3 4.3 4.3 4.3-2 4.3-4.3-2-4.3-4.3-4.3z"></path></svg>
+                </a>
+            </div>
+            {% if app.user %}
+            <div class="ml-10 d-none d-lg-block">
+                <a href="{{ path('dashboard') }}" title="strona główna panelu administracyjnego">
+                    <div class="badge badge-info">
+                        <span class="fas fa-share fa-fw"></span> CMS
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="container py-20 {% if app.request.attributes.get('_route') == 'search' %} always-show{% endif %}" id="search" {% if app.request.attributes.get('_route') != 'search' %}style="display: none"{% endif %}>
+            <div class="row">
+                <form action="{{ path('search') }}" class=" col-lg-6 col-md-8 col-lg-offset-3 col-md-offset-2">
+                    <div class="form-search">
+                        <input type="search" class="form-control" id="query" placeholder="Wpisz co chcesz znaleźć..." name="query" value="{{ query|default }}">
+                        <button type="submit" class="btn btn-default">Szukaj</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+{% block body %}
+{% endblock %}
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Grupa ALAB</h2>
+                <div class="row">
+                    <div class="col-xs-6 col-sm-4">
+                        <img src="{{ asset('img/logo_alab_laboratoria.svg') }}" alt="" height="24">
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        <img src="{{ asset('img/logo_alab_plus.svg') }}" alt="" height="24">
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        <img src="{{ asset('img/logo_a_pat.svg') }}" alt="" height="24">
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        <img src="{{ asset('img/logo_alab_weterynaria.svg') }}" alt="" height="24">
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        <img src="{{ asset('img/logo_alab_bioscience.svg') }}" alt="" height="24">
+                    </div>
+                    <div class="col-xs-6 col-sm-4">
+                        <img src="{{ asset('img/logo_alab.svg') }}" alt="" height="24">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h2>Przydatne linki</h2>
+                <ul class="row">
+                    <li class="col-xs-6 col-sm-4"><a href="https://intranet.alab.com.pl/page/4/view">O Firmie</a></li>
+                    <li class="col-xs-6 col-sm-4"><a href="https://intranet.alab.com.pl/laboratory/1/public">Laboratoria</a></li>
+                    <li class="col-xs-6 col-sm-4"><a href="https://intranet.alab.com.pl/page/18/view">RODO</a></li>
+                    <li class="col-xs-6 col-sm-4"><a href="https://intranet.alab.com.pl/category/60/view">Benefity</a></li>
+                    <li class="col-xs-6 col-sm-4"><a href="https://intranet.alab.com.pl/collection-point/map/public">Punkty Pobrań</a></li>
+                    <li class="col-xs-6 col-sm-4"><a href="https://intranet.alab.com.pl/iso">ISO</a></li> 
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="{{ prefetch(asset('js/alab-public.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+
+{% block javascripts %}{% endblock %}
+
+</body>
+
+</html>{% endapply %}

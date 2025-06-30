@@ -1,0 +1,13 @@
+{% apply spaceless %}
+
+    data-column="{{ column }}"
+
+    {% if checked %}
+        checked="checked"
+    {% endif %}
+
+    {% if hidden %}
+        style="display: none"
+    {% endif %}
+
+{% endapply %}

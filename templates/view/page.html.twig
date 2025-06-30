@@ -1,0 +1,36 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+    <div class="container">
+
+        {% include 'partials/list-header-public.html.twig' with {'noFilter': true} %}
+
+        {% if html is defined %}
+            {{ html|replace({'(eRecruiter)': '<script type=\'text/javascript\' src=\'https://skk.erecruiter.pl/Code.ashx?cfg=3562e2cd771345168cddd30331c083f9\'></script>'})|raw }}
+        {% else %}
+            {{ page.longText|raw }}
+
+            {% for section in page.fileSections %}
+                <hr />
+                <h4>{{ section.title }}</h4>
+                {{ section.shortText|raw }}
+                {% if section.files %}
+                    <ul>
+                    {% for file in section.files %}
+                        <li><a href="{{ url('file-download', {'id': file.id}) }}">{{ file.originalFilename }}</a></li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+
+            <div class="file-tree">
+                {% include 'view/_tree.html.twig' with {
+                    'pathDownload': 'page-file-download'
+                } %}
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endblock %}

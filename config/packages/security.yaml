@@ -1,0 +1,78 @@
+security:
+
+  password_hashers:
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+      algorithm: 'bcrypt'
+      cost: 14
+
+  providers:
+    users:
+      entity:
+        class: App\Entity\User
+
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    main:
+      lazy: true
+      provider: users
+      user_checker: App\Security\UserChecker
+
+      custom_authenticators:
+        - App\Security\LoginFormAuthenticator
+
+      form_login:
+        login_path: login
+        check_path: login
+        enable_csrf: true
+
+      login_throttling:
+        max_attempts: 5
+
+      logout:
+        path: logout
+        target: login
+
+      remember_me:
+        secret: '%env(APP_SECRET)%'
+        lifetime: 604800 # 1 week in seconds
+        path: /
+        name: REMEMBERME_INTRANET
+
+      switch_user:
+        role: ROLE_USER_SWITCH
+        parameter: _switch_user
+
+  role_hierarchy:
+    ROLE_ANONYMOUS: ~
+    # admins
+    ROLE_ADMIN: [ ROLE_ANONYMOUS ]
+    ROLE_SUPER_ADMIN: [ ROLE_ANONYMOUS, ROLE_ADMIN ]
+    ROLE_USER_SWITCH: [ ROLE_ANONYMOUS ]
+    ROLE_EDITOR: [ ROLE_ANONYMOUS ]
+    # users
+    ROLE_REGION: [ ROLE_ANONYMOUS ]
+    ROLE_LABORATORY: [ ROLE_ANONYMOUS ]
+    ROLE_COLLECTION_POINT: [ ROLE_ANONYMOUS ]
+
+  access_control:
+    - { path: ^/$, roles: PUBLIC_ACCESS }
+    - { path: ^/start$, roles: PUBLIC_ACCESS }
+    - { path: ^/page/\d+/view, roles: PUBLIC_ACCESS }
+    - { path: ^/category/\d+/view, roles: PUBLIC_ACCESS }
+    - { path: ^/search(/\d+)?, roles: PUBLIC_ACCESS }
+    - { path: ^/file/\d+/download, roles: PUBLIC_ACCESS }
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/new-password/(.*)$, roles: PUBLIC_ACCESS }
+    - { path: ^/password/recover, roles: PUBLIC_ACCESS }
+    - { path: ^/employee/search/public$, roles: PUBLIC_ACCESS }
+    - { path: ^/collection-point/map/public$, roles: PUBLIC_ACCESS }
+    - { path: ^/collection-point/(\d+)/public, roles: PUBLIC_ACCESS }
+    - { path: ^/laboratory/(\d+)/public, roles: PUBLIC_ACCESS }
+    - { path: ^/iso$, roles: PUBLIC_ACCESS }
+    - { path: ^/iso/(\d+)/download$, roles: PUBLIC_ACCESS }
+    - { path: ^/page/file/(\d+)/download$, roles: PUBLIC_ACCESS }
+    - { path: ^/media/cache, roles: PUBLIC_ACCESS }
+    - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }

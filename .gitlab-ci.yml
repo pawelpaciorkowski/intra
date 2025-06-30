@@ -1,0 +1,153 @@
+stages:
+  - prepare
+  - lint_and_test
+  - build_production
+  - release_production
+  - deploy_production
+
+app:prepare:
+  tags:
+    - php
+  stage: prepare
+  image: php:8.3-cli
+  only:
+    - production
+  script:
+    - apt-get update -yqq
+    - apt-get upgrade -y
+    - apt-get install -y zlib1g-dev libpng-dev libzip-dev libxslt-dev libicu-dev unzip libcurl4-gnutls-dev libgnutls28-dev
+
+    - docker-php-ext-install zip xsl pdo_mysql sockets gd exif
+    - pecl install raphf
+    - docker-php-ext-enable raphf
+    - pecl install pecl_http
+    - docker-php-ext-enable http
+
+    - curl -sS https://getcomposer.org/installer | php
+    - php composer.phar install --no-scripts
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME"
+    paths:
+      - vendor/
+    expire_in: 1 day
+
+app:lint:
+  tags:
+    - php
+  stage: lint_and_test
+  image: php:8.3-cli
+  environment: production
+  needs: ["app:prepare"]
+  only:
+    - production
+  script:
+    - php ./bin/console lint:yaml ./config --parse-tags
+
+app:test:
+  tags:
+    - php
+  stage: lint_and_test
+  image: php:8.3-cli
+  allow_failure: true
+  environment: production
+  needs: ["app:prepare"]
+  only:
+    - production
+  script:
+    - PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky=yes
+
+app:db:
+  tags:
+    - shell
+  stage: build_production
+  environment: production
+  needs: ["app:lint", "app:test"]
+  only:
+    - production
+  script:
+    - docker build -t ${REGISTRY_ADDRESS}/intranet_db:latest . -f Docker/prod/db/Dockerfile
+    - docker push ${REGISTRY_ADDRESS}/intranet_db:latest
+
+app:release:production:
+  tags:
+    - shell
+  stage: release_production
+  environment: production
+  only:
+    - production
+  needs: ["app:db"]
+  before_script:
+    - mkdir -p ${CI_PROJECT_DIR}/.tmp/
+    - cp ${INTRANET_ALAB_COM_PL_CRT} ${CI_PROJECT_DIR}/.tmp/intranet.alab.com.pl.crt
+    - cp ${INTRANET_ALAB_COM_PL_KEY} ${CI_PROJECT_DIR}/.tmp/intranet.alab.com.pl.key
+    - cp ${DHPARAMS_PEM} ${CI_PROJECT_DIR}/.tmp/dhparams.pem
+  script:
+    - docker build -t ${REGISTRY_ADDRESS}/intranet_app:latest . -f Docker/prod/app/Dockerfile
+    - docker push ${REGISTRY_ADDRESS}/intranet_app:latest
+
+app:deploy:production:
+  tags:
+    - shell
+  stage: deploy_production
+  environment: production
+  only:
+    - production
+  needs: ["app:release:production"]
+  variables:
+    DEPLOYMENT_USER: docker
+  before_script:
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    - eval $(ssh-agent -s)
+    - chmod 400 $SSH_PRIVATE_KEY
+    - ssh-add $SSH_PRIVATE_KEY
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan ${DEPLOYMENT_MACHINE} >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh ${DEPLOYMENT_USER}@${DEPLOYMENT_MACHINE} << ENDSSH
+    - |
+      
+      docker network inspect intranet >/dev/null 2>&1 || docker network create --driver bridge intranet
+
+      docker pull ${REGISTRY_ADDRESS}/intranet_db:latest    
+      
+      docker stop intranet_db || true && docker container rm -f intranet_db || true && docker container run -d -t --name intranet_db \
+      --expose=3306 \
+      -p 127.0.0.1:8151:3306 \
+      -e "MARIADB_AUTO_UPGRADE=1" \
+      -e "MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}" \
+      -e "MARIADB_DATABASE=${MARIADB_DATABASE}" \
+      -e "MARIADB_USER=${MARIADB_USER}" \
+      -e "MARIADB_PASSWORD=${MARIADB_PASSWORD}" \
+      -e "TZ=Europe/Warsaw" \
+      -v "intranet_db:/var/lib/mysql" \
+      --network intranet \
+      --restart unless-stopped \
+      ${REGISTRY_ADDRESS}/intranet_db:latest
+
+      docker pull ${REGISTRY_ADDRESS}/intranet_app:latest    
+
+      docker stop intranet_app || true && docker container rm -f intranet_app || true && docker container run -d -t --name intranet_app \
+      -p 84:80 \
+      -p 445:443 \
+      -e "APP_SECRET=${APP_SECRET}" \
+      -e "DATABASE_URL=${DATABASE_URL}" \
+      -e "RABBITMQ_URL=${RABBITMQ_URL}" \
+      -e "RABBITMQ_URL_HUB=${RABBITMQ_URL_HUB}" \
+      -e "MAPBOX_USERNAME=${MAPBOX_USERNAME}" \
+      -e "MAPBOX_ID=${MAPBOX_ID}" \
+      -e "MAPBOX_TOKEN=${MAPBOX_TOKEN}" \
+      -e "MAILER_URL=${MAILER_URL}" \
+      -e "MESSENGER_TRANSPORT_DSN=${MESSENGER_TRANSPORT_DSN}" \
+      -e "TZ=Europe/Warsaw" \
+      -v "intranet_log:/var/www/html/app/var/log" \
+      -v "intranet_apache:/var/log/apache2" \
+      -v "intranet_uploads:/var/www/html/app/uploads" \
+      -v "intranet_uploads_public:/var/www/html/app/public/upload" \
+      -v "intranet_uploads_manager:/var/www/html/app/public/uploads" \
+      --network intranet \
+      --restart unless-stopped \
+      ${REGISTRY_ADDRESS}/intranet_app:latest
+
+    - ENDSSH

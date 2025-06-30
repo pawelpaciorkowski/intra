@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                {% block form_header_right %}{% endblock %}
+                <h1>
+                    {{ breadcrumb.all|last }}{% if subtitle is defined %} - {{ subtitle }}{% endif %}
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    {% if block('right') is defined %}
+        <div class="row">
+        <div class="col-md-8">
+    {% endif %}
+
+    {% block center %}{% endblock %}
+
+    {% block form %}
+        {% include 'partials/_form_errors.html.twig' %}
+        {{ form(form) }}
+    {% endblock %}
+
+    {% if block('right') is defined %}
+        </div>
+        <div class="col-md-4">
+            {{ block('right')|raw }}
+        </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/tinymce/tinymce.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+    <script src="{{ prefetch(asset('js/alab.tinymce.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

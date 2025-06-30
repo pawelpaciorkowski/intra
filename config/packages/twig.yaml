@@ -1,0 +1,26 @@
+twig:
+  default_path: '%kernel.project_dir%/templates'
+  debug: '%kernel.debug%'
+  strict_variables: '%kernel.debug%'
+  globals:
+    defaults:
+      title: "%title%"
+      email: "%email%"
+    version: "%version%"
+    rows_per_page: "%rows_per_page%"
+    breadcrumb: "@App\\Services\\BreadcrumbContainerService"
+    users: "@App\\Services\\UserService"
+    links: "@App\\Services\\LinkService"
+    menus: "@App\\Services\\MenuService"
+    categories: "@App\\Services\\CategoryService"
+    setting: "@App\\Services\\SettingService"
+    security: "@App\\Services\\SecurityService"
+  form_themes:
+    - 'partials/fields.html.twig'
+  paths:
+    '%kernel.project_dir%/public/css': css
+  exception_controller: null
+
+when@dev:
+  framework:
+    ide: 'idea://open?file=%%f&line=%%l&/home/www/>/Users/mariuszrysz/Project/Alab/Source/'

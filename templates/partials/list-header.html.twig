@@ -1,0 +1,52 @@
+<div class="page-header {{ className|default }}">
+    <div class="row">
+        <div class="col-md-{% if noFilter is not defined or customFilter is defined %}{% if optionAdditionalContent is defined %}4{% elseif customFilter is defined %}9{% else %}6{% endif %}{% else %}12{% endif %}">
+            <h1>
+                {% if breadcrumb.all %}
+                    {{ breadcrumb.all|last }}
+                {% elseif menus.getSelectedLeaf(app.user) %}
+                    {{ menus.getSelectedLeaf(app.user).getName }}
+                {% endif %}
+                {% if subtitle is defined and subtitle|length %} - {{ subtitle }}{% endif %}
+
+                {% block customAction %}{% endblock %}
+            </h1>
+            {% if action is defined and security.hasAccess(action) %}
+                <a href="{% if actionId is defined %}{{ path(action, {'id': actionId}) }}{% else %}{{ path(action) }}{% endif %}" class="btn btn-success btn-xs">
+                    {% if actionText|default %}
+                        {{ actionText|raw }}
+                    {% else %}
+                        <span class="fas fa-fw fa-plus"></span> dodaj
+                    {% endif %}
+                </a>
+            {% endif %}
+            {% if smallText is defined %}
+                <h2>{{ smallText }}</h2>
+            {% endif %}
+        </div>
+        {% if customFilter is defined %}
+            <div class="col-md-3 mr-text-right">
+                {{ customFilter }}
+            </div>
+        {% elseif noFilter is not defined %}
+            {% if optionAdditionalContent is defined %}
+                <div class="col-md-4" style="text-align: right;">{{ optionAdditionalContent }}</div>
+            {% endif %}
+
+            <div class="col-md-{% if optionAdditionalContent is defined %}4{% else %}6{% endif %} mr-text-right">
+
+                <form class="form-inline no-wait-button" action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}" role="form">
+                    {% block headerFilter %}
+                        <div class="input-group">
+                            <input type="text" class="form-control input_error" name="query" value="{{ app.request.get('query') }}" placeholder="Szukaj...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" title="szukaj" data-toggle="tooltip"><span class="fas fa-fw fa-search"></span></button>
+                            </span>
+                        </div>
+                    {% endblock %}
+                    {% block action %}{% endblock %}
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>

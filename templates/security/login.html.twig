@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block document %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                <div class="login-logo">
+                    <img src="{{ asset('img/alab_logo_big.png') }}" height="50" width="222" alt="{{ defaults.title }}">
+                </div>
+                <div class="login-panel panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Zaloguj się</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        {% if error %}
+                            <div class="alert alert-danger" role="alert">
+                                <span class="fas fa-fw fa-exclamation-circle"></span>
+                                {{ error.messageKey|trans(error.messageData, 'security') }}
+                            </div>
+                        {% endif %}
+
+                        <form method="post">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="sr-only" for="username">Login</label>
+                                    <input type="text" id="username" name="_username" required="required" class="form-control" placeholder="Login lub adres e-mail" value="{{ last_username }}" {% if not last_username %}autofocus{% endif %}>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="sr-only" for="password">Hasło</label>
+                                    <input type="password" id="password" name="_password" required="required" class="form-control" placeholder="Hasło" {% if last_username %}autofocus{% endif %}>
+                                </div>
+
+                                <div class="checkbox switch">
+                                    <input type="checkbox" id="remember_me" name="_remember_me" />
+                                    <label for="remember_me">Zapamiętaj mnie</label>
+                                </div>
+
+
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                                <button class="btn btn-primary btn-block" id="login_save" type="submit">Zaloguj</button>
+                                    <p class="text-center">
+                                        <br>
+                                        <a href="{{ path('password-recover') }}" title="Formularz resetowania hasła" data-toggle="tooltip">Zapomniałem hasło</a>
+                                    </p>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

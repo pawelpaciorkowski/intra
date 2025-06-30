@@ -1,0 +1,36 @@
+{% extends 'base-public.html.twig' %}
+
+{% block body %}
+
+    <div class="container mt-20 search-results">
+
+        {% include 'partials/list-header-public.html.twig' with {'noFilter': true} %}
+
+        {% if rows|length %}
+            {% for row in rows %}
+                <div class="search-result">
+                        <h3>
+                            <a href="{{ row.url }}">{{ row.name }}</a>
+                        </h3>
+                    {% if (row.objectClass|replace({'Proxies\\__CG__\\': ''})) == 'App\\Entity\\Page' %}
+                        <small>strona</small>
+                    {% elseif (row.objectClass|replace({'Proxies\\__CG__\\': ''})) == 'App\\Entity\\Category' %}
+                        <small>kategoria</small>
+                    {% elseif (row.objectClass|replace({'Proxies\\__CG__\\': ''})) == 'App\\Entity\\Employee' %}
+                        <small>pracownik</small>
+                    {% elseif (row.objectClass|replace({'Proxies\\__CG__\\': ''})) == 'App\\Entity\\CollectionPoint' %}
+                        <small>punkt pobrań</small>
+                    {% elseif (row.objectClass|replace({'Proxies\\__CG__\\': ''})) == 'App\\Entity\\ISOFile' %}
+                        <small>plik ISO</small>
+                    {% endif %}
+                    {{ row.description|raw }}
+                </div>
+            {% endfor %}
+
+            {% include 'partials/pagination-public.html.twig' with {'rows_per_page': rows_per_page} %}
+        {% else %}
+            <p>Nic nie znaleziono.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,17 @@
+{% if columnNumber == currentOrder|abs %}
+    {% set targetOrder = -currentOrder %}
+{% else %}
+    {% set targetOrder = columnNumber %}
+{% endif %}
+<a href="#" data-toggle="sort" data-column-order-id="{{ targetOrder }}"
+   title="sortuj wg tej kolumny" data-toggle="tooltip">
+    {{ title|raw }}
+    {% if columnNumber == currentOrder|abs %}
+        {% if currentOrder > 0 %}
+            <span class="fas fa-fw fa-arrow-up"></span>
+        {% else %}
+            <span class="fas fa-fw fa-arrow-down"></span>
+        {% endif %}
+    {% endif %}
+</a>
+

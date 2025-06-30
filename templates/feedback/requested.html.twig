@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+
+    {% include 'partials/list-header.html.twig' with {'noFilter': true} %}
+
+    <div class="alert alert-info alab-alert" role="alert">
+        <span class="fas fa-info fa-fw"></span> Twoje zgłoszenie zostało przyjęte. Poczekaj teraz na kontakt z naszej strony.<br>
+    </div>
+
+    <p>
+        <a href="{{ path('dashboard') }}">Wróć na stronę główną</a>
+    </p>
+
+{% endblock %}

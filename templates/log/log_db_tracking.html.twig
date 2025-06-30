@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/list-header.html.twig' %}
+
+    {% if rows.count %}
+
+        {% set class = 'log-db-tracking' %}
+        {% set columns = {
+            'action': {'name': 'Akcja', 'sort': true, 'filter': true},
+            'logged-at': {'name': 'Kiedy', 'sort': true, 'filter': true},
+            'object-id': {'name': 'ID', 'sort': true, 'filter': true},
+            'object-class': {'name': 'Object class', 'sort': true, 'filter': true},
+            'version': {'name': 'Version', 'sort': true, 'filter': true},
+            'data': {'name': 'Data', 'sort': true, 'filter': true},
+            'login': {'name': 'Username', 'sort': true, 'filter': true},
+        } %}
+
+        {% set isFilterBarVisible = false %}
+        {% for key,text in columns %}
+            {% if app.request.get(key) != '' %}
+                {% set isFilterBarVisible = true %}
+            {% endif %}
+        {% endfor %}
+
+        <form method="get" action="">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover table-stick" data-table="log-db-tracking">
+                        <thead>
+                        <tr>
+                            <th class="mr-thin-column">
+                                <div class="btn-group dropdown">
+                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle"
+                                            data-toggle="dropdown">
+                                        <span class="fa fa-fw fa-columns"></span>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-default btn-xs mr-filter-button {% if isFilterBarVisible %}active{% endif %}"
+                                            data-toggle="button">
+                                        <span class="fa fa-fw fa-filter"></span>
+                                    </button>
+                                    <ul class="dropdown-menu pull-left dropdown-column-select" role="menu">
+                                        <li>
+                                            {% for key,params in columns %}
+                                                <div class="switch switch-xs">
+                                                    <input type="checkbox" id="checkbox-{{ loop.index }}" {{ user_table_column_visible('checkbox', true, class, key)|raw }}>
+                                                    <label for="checkbox-{{ loop.index }}">
+                                                        {{ params.name }}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </th>
+                            {% for key,params in columns %}
+                                {% if params.sort %}
+                                    <th {{ user_table_column_visible('column', true, class, key)|raw }}>{{ user_table_column_order(params.name, class, key) }}</th>
+                                {% else %}
+                                    <th {{ user_table_column_visible('column', true, class, key)|raw }}>{{ params.name }}</th>
+                                {% endif %}
+                            {% endfor %}
+                            <th></th>
+                        </tr>
+                        <tr class="mr-filter-row {% if not isFilterBarVisible %}mr-hidden{% endif %}">
+                            <td></td>
+                            {% for key,params in columns %}
+                                {% if params.filter %}
+                                    <td {{ user_table_column_visible('column', true, class, key)|raw }}><input
+                                                type="text" class="form-control" name="{{ key }}" placeholder=""
+                                                value="{{ app.request.get(key) }}"></td>
+                                {% else %}
+                                    <td {{ user_table_column_visible('column', true, class, key)|raw }}></td>
+                                {% endif %}
+                            {% endfor %}
+                            <td colspan="2">
+                                <div class="btn-toolbar">
+                                    <button class="btn btn-default btn-xs" data-toggle="tooltip"
+                                            title="przefiltruj wg kryteriów">
+                                        <span class="fa fa-fw fa-filter"></span></button>
+                                    <button class="btn btn-default btn-xs mr-filter-reset" data-toggle="tooltip"
+                                            title="wyczyść wszystkie filtry">
+                                        <span class="fa fa-fw fa-times"></span></button>
+                                </div>
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in rows %}
+                            <tr>
+                                <td class="mr-thin-column">{{ loop.index + (setting.getSetting('rows_per_page', app.user) * (app.request.get('page') - 1)) }}</td>
+                                <td {{ user_table_column_visible('column', true, class, 'action')|raw }}>{{ row.action }}</a></td>
+                                <td {{ user_table_column_visible('column', true, class, 'logged-at')|raw }}>{{ row.loggedAt|format_datetime('short') }}</a></td>
+                                <td {{ user_table_column_visible('column', true, class, 'object-id')|raw }}>{{ row.objectId }}</a></td>
+                                <td {{ user_table_column_visible('column', true, class, 'object-class')|raw }}>{{ row.objectClass }}</a></td>
+                                <td {{ user_table_column_visible('column', true, class, 'version')|raw }}>{{ row.version }}</a></td>
+                                <td {{ user_table_column_visible('column', true, class, 'data')|raw }}>{{ row.data|beautify|raw }}</a></td>
+                                <td {{ user_table_column_visible('column', true, class, 'login')|raw }}>{{ row.username }}</a></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+
+        {% include 'partials/pagination.html.twig' %}
+
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <span class="fa fa-exclamation-circle"></span> Nic nie znaleziono.<br><br>
+            <a href="{{ path(app.request.attributes.get('_route')) }}" class="alert-link">Pokaż wszystko</a>
+        </div>
+    {% endif %}
+{% endblock %}

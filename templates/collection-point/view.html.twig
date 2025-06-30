@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {% include 'partials/list-header.html.twig' with {'noFilter': true} %}
+    <div class="row">
+        <div class="col-md-8">
+
+            <div id="calendar" data-collection-point-id="{{ collectionPoint.id }}"></div>
+            <div class="panel panel-default">
+                <div class="panel-heading panel-heading-small">Legenda</div>
+                <div class="panel-body">
+                    <ul class="calendar-legend">
+                        <li><span class="badge badge-work">godziny pracy</span></li>
+                        <li><span class="badge badge-collect">godziny pobrań</span></li>
+                        <li><span class="badge badge-closed">zamknięty wskazanego dnia</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            {% if collectionPoint.user %}
+                {% include 'user/partials/user.html.twig' with {'user': collectionPoint.user} %}
+            {% endif %}
+
+            {% if collectionPoint.user2 %}
+                {% include 'user/partials/user.html.twig' with {'user': collectionPoint.user2} %}
+            {% endif %}
+
+            {% include 'collection-point/partials/collection-point.html.twig' with {'hidePeriods': true, 'chatbotizeCalendarCreate': true} %}
+
+            {% set laboratory = collectionPoint.laboratory %}
+            {% if laboratory %}
+                <h4>Laboratorium</h4>
+                {% include 'laboratory/partials/laboratory.html.twig' with {'collapsed': true, 'showCardLink': true} %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ prefetch(asset('css/alab.fullcalendar.min.css')) }}" rel="stylesheet" nonce="{{ csp_nonce('script') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.fullcalendar.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+    <script nonce="{{ csp_nonce('script') }}">
+        var calendar = $.calendar({% if security.hasAccess('collection-point-update') and is_granted('edit', collectionPoint) %}true{% else %}false{% endif %});
+    </script>
+{% endblock %}

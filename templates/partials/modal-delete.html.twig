@@ -1,0 +1,29 @@
+{% if not modal is defined %}
+
+    {% set modal = true %}
+
+    <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title custom_align" id="Heading">Usuwanie</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning" role="alert">
+                        <span class="fas fa-fw fa-question-circle"></span>
+                        Czy na pewno chcesz skasować <span class="subject">{{ element|default }}</span>&nbsp;<strong class="name"></strong>?
+                        <br>
+                        <br>
+                        <small>Pamiętaj, że kasując dany wpis, jeżeli jest on użyty w innych wpisach, mogą one one także zostać usunięte.</small>
+                    </div>
+
+                </div>
+                <div class="modal-footer ">
+                    <button type="button" class="btn btn-danger" id="row-delete-perform">Tak</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Nie</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

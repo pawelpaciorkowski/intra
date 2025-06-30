@@ -1,0 +1,73 @@
+{% extends 'partials/form.html.twig' %}
+
+{% block form %}
+
+    {% include 'partials/_form_errors.html.twig' %}
+
+    {{ form_start(form) }}
+
+    {{ form_errors(form) }}
+
+    {{ form_row(form.name) }}
+    {{ form_row(form.surname) }}
+    {{ form_row(form.departments) }}
+    {{ form_row(form.email) }}
+    {{ form_row(form.position) }}
+
+    {% if form.phones is defined %}
+        {% set phonePrototype = form_widget(form.phones.vars.prototype) %}
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-9">
+                <h4 class="text-blue"><strong>Telefony</strong></h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div id="phone-item-list" class="col-sm-9 dynamic-item-list" data-type="phone" data-prototype="{{ phonePrototype|e }}">
+                <div class="row phone-header {% if not form.phones|length %}hidden{% endif %}">
+                    <div class="col-xs-8"><label>Nr telefonu</label></div>
+                    <div class="col-xs-3"><label>Publiczny</label></div>
+                    <div class="col-xs-1"></div>
+                </div>
+                {% for phoneItem in form.phones %}
+                    <div class="row phone-item" id="period_phoneItems_{{ loop.index - 1 }}_name">
+                        <div class="col-xs-8 phone-item-start-at {% if phoneItem.number.vars.valid == false %} has-error{% endif %}">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    {{ form_widget(phoneItem.number) }}
+                                    {{ form_errors(phoneItem.number) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-3 phone-item-end-at {% if phoneItem.isVisible.vars.valid == false %} has-error{% endif %}">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    {{ form_widget(phoneItem.isVisible) }}
+                                    {{ form_errors(phoneItem.isVisible) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-1"><button class="btn btn-xs btn-danger remove-phone-item" type="button" title="Usuń pozycję" data-toggle="tooltip"><span class="fa fa-times"></span></button></div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-9">
+                <button class="btn btn-warning add-another-phone-item" data-list="phone-item-list" type="button" title="Dodaj nowy okres" data-toggle="tooltip"><span class="fa fa-plus"></span> Dodaj numer telefonu</button>
+            </div>
+        </div>
+    {% endif %}
+
+    {{ form_row(form._token) }}
+    {{ form_row(form.save) }}
+
+    {{ form_end(form, {'render_rest': false}) }}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.phone.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

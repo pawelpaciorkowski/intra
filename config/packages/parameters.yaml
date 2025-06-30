@@ -1,0 +1,11 @@
+parameters:
+  locale: pl
+  title: INTRANET
+  domain: intranet.alab.local
+  email:
+    title_prefix: "%title%"
+    mailer_sender: intranet@alab.com.pl
+  version:
+    date: Unknown
+    description: Unknown
+  rows_per_page: 25

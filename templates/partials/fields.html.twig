@@ -1,0 +1,198 @@
+{% use "bootstrap_3_layout.html.twig" %}
+
+{% block form_start -%}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-horizontal')|trim}) %}
+    {{- parent() -}}
+{%- endblock %}
+
+{% block form_label -%}
+    {% apply spaceless %}
+        {% if label is same as(false) %}
+            <div class="{{ block('form_label_class') }}"></div>
+        {% else %}
+            {% set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' ' ~ block('form_label_class'))|trim}) %}
+            {{- parent() -}}
+        {% endif %}
+    {% endapply %}
+{%- endblock %}
+
+{% block form_label_class -%}
+    col-sm-3
+{%- endblock %}
+
+{% block form_row -%}
+    {%- set widget_attr = {} -%}
+    {%- if help is not empty -%}
+        {%- set widget_attr = {attr: {'aria-describedby': id ~"_help"}} -%}
+    {%- endif -%}
+    <div{% with {attr: row_attr|merge({class: (row_attr.class|default('') ~ ' form-group' ~ ((not compound or force_error|default(false)) and not valid ? ' has-error'))|trim})} %}{{ block('attributes') }}{% endwith %}>
+        {{- form_label(form) -}}
+        <div class="{{ block('form_group_class') }}">
+            {{- form_widget(form, widget_attr) -}}
+            {{- form_help(form) -}}
+            {{- form_errors(form) -}}
+        </div>
+    </div>
+{%- endblock form_row %}
+
+{% block checkbox_row -%}
+    {{- block('checkbox_radio_row') -}}
+{%- endblock %}
+
+{% block file_row -%}
+    {% apply spaceless %}
+        {%- if help is not empty -%}
+            {%- set widget_attr = {attr: {'aria-describedby': id ~"_help"}} -%}
+        {%- endif -%}
+        <div class="form-group{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+            {{- form_label(form) -}}
+            <div class="{{ block('form_group_class') }}">
+                {{- form_widget(form) -}}
+                {{- form_errors(form) -}}
+            </div>
+        </div>
+    {% endapply %}
+{%- endblock %}
+
+{% block radio_row -%}
+    {{- block('checkbox_radio_row') -}}
+{%- endblock %}
+
+{% block checkbox_radio_row -%}
+    {% apply spaceless %}
+        <div{% with {attr: row_attr|merge({class: (row_attr.class|default('') ~ ' form-group' ~ ((not compound or force_error|default(false)) and not valid ? ' has-error'))|trim})} %}{{ block('attributes') }}{% endwith %}>
+            <div class="{{ block('form_label_class') }}"></div>
+            <div class="{{ block('form_group_class') }}">
+                {{ form_widget(form) }}
+                {{ form_errors(form) }}
+                {{ form_help(form) }}
+            </div>
+        </div>
+    {% endapply %}
+{%- endblock %}
+
+{% block submit_row -%}
+    {% apply spaceless %}
+        <div class="form-group">
+            <div class="{{ block('form_label_class') }}"></div>
+            <div class="{{ block('form_group_class') }}">
+                {{ form_widget(form) }}
+            </div>
+        </div>
+    {% endapply %}
+{% endblock submit_row %}
+
+{% block reset_row -%}
+    {% apply spaceless %}
+        <div class="form-group">
+            <div class="{{ block('form_label_class') }}"></div>
+            <div class="{{ block('form_group_class') }}">
+                {{ form_widget(form) }}
+            </div>
+        </div>
+    {% endapply %}
+{% endblock reset_row %}
+
+{% block form_group_class -%}
+    col-sm-9
+{%- endblock %}
+
+{% block datetime_widget %}
+    <div class="datetime-picker input-group date">
+        {{- parent() -}}
+        <span class="input-group-addon">
+            <span class="far fa-fw fa-calendar-alt"></span>
+        </span>
+    </div>
+{% endblock %}
+
+{% block date_widget %}
+    <div class="date-picker input-group date">
+        {{- parent() -}}
+        <span class="input-group-addon">
+            <span class="far fa-fw fa-calendar-alt"></span>
+        </span>
+    </div>
+{% endblock %}
+
+{% block date_month_widget %}
+    <div class="date-month-picker input-group date">
+        <input type="text" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}
+               class="form-control"/>
+        <span class="input-group-addon">
+            <span class="far fa-fw fa-calendar-alt"></span>
+        </span>
+    </div>
+{% endblock %}
+
+{% block date_time_widget %}
+    <div class="date-time-picker input-group date">
+        <input type="text" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}
+               class="form-control" placeholder=""/>
+        <span class="input-group-addon">
+            <span class="far fa-fw fa-clock"></span>
+        </span>
+    </div>
+{% endblock %}
+
+{% block file_widget %}
+    <div class="input-group">
+        <span class="input-group-btn">
+            <span class="btn btn-default btn-file">
+                <span class="far fa-fw fa-folder-open"></span> Przeglądaj... {{- form_widget(form) -}}
+            </span>
+        </span>
+        <input type="text" class="form-control" readonly>
+    </div>
+    {{- form_help(form) -}}
+{% endblock %}
+
+{% block checkbox_widget -%}
+    {%- set parent_label_class = parent_label_class|default(label_attr.class|default('')) -%}
+    {% if 'checkbox-inline' in parent_label_class %}
+        <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+    {% else -%}
+        <div class="checkbox switch">
+            <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+            {{- block('checkbox_radio_label') -}}
+        </div>
+    {%- endif -%}
+{%- endblock checkbox_widget %}
+
+{% block checkbox_radio_label -%}
+    {%- set label_attr = label_attr|merge({for: id}) -%}
+    {%- if required -%}
+        {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' required')|trim}) -%}
+    {%- endif -%}
+    {%- if parent_label_class is defined -%}
+        {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' ' ~ parent_label_class)|trim}) -%}
+    {%- endif -%}
+    {%- if label is not same as(false) and label is empty -%}
+        {%- if label_format is not empty -%}
+            {%- set label = label_format|replace({
+                '%name%': name,
+                '%id%': id,
+            }) -%}
+        {%- else -%}
+            {% set label = name|humanize %}
+        {%- endif -%}
+    {%- endif -%}
+    <label{% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}">
+    {{ label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain)) -}}
+    </label>
+{%- endblock checkbox_radio_label %}
+
+{% block marcel_widget %}
+    {% apply spaceless %}
+        <div class="input-group validate-marcel">
+            {{- block('form_widget_simple') -}}
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"
+                        title="uzupełnij nazwę oraz laboratorium dla tego kodu z danych w bazie laboratorium"
+                        data-toggle="tooltip">
+                    <img src="{{ asset('img/marcel_logo.png') }}" width="18" height="18"/>
+                </button>
+          </span>
+        </div>
+    {% endapply %}
+{% endblock %}

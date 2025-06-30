@@ -1,0 +1,95 @@
+.map-cp {
+  height: 100vw;
+  max-height: 1000px;
+  border: 1px solid #ccc;
+}
+
+.marker-cluster-small {
+  background-color: rgba(0, 162, 211, 0.4);
+  color: white;
+}
+
+.marker-cluster-small div {
+  background-color: rgba(0, 162, 211, 0.4);
+  color: white;
+}
+
+.marker-cluster-medium {
+  background-color: rgba(0, 162, 211, 0.8);
+  color: white;
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(0, 162, 211, 0.8);
+  color: white;
+}
+
+.marker-cluster-large {
+  background-color: rgba(0, 162, 211, 1);
+  color: white;
+}
+
+.marker-cluster-large div {
+  background-color: rgba(0, 162, 211, 1);
+  color: white;
+}
+
+/* IE 6-8 fallback colors */
+.leaflet-oldie .marker-cluster-small {
+  background-color: rgb(181, 226, 140);
+}
+
+.leaflet-oldie .marker-cluster-small div {
+  background-color: rgb(110, 204, 57);
+}
+
+.leaflet-oldie .marker-cluster-medium {
+  background-color: rgb(241, 211, 87);
+}
+
+.leaflet-oldie .marker-cluster-medium div {
+  background-color: rgb(240, 194, 12);
+}
+
+.leaflet-oldie .marker-cluster-large {
+  background-color: rgb(253, 156, 115);
+}
+
+.leaflet-oldie .marker-cluster-large div {
+  background-color: rgb(241, 128, 23);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 5px;
+
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.3);
+
+  .leaflet-popup-content {
+    min-width: 20vw;
+  }
+
+  img {
+    float: right;
+    height: 20px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+
+    th, td {
+      border-bottom: 1px solid #ddd;
+      color: #113C88;
+      padding: 3px 8px
+    }
+
+    th {
+      background-color: #eee;
+      color: #222;
+    }
+  }
+}
+
+.leaflet-popup-close-button {
+  display: none;
+}

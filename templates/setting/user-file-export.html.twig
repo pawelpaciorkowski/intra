@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h1>
+                    Punkty pobrań
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <p class="alert alert-info">
+        <span class="fas fa-info-circle fa-fw"></span>
+        Na tej stronie możesz ustawić kolejność oraz widoczność poszczególnych pól w pliku eksportu informacji o punktach pobrań.
+    </p>
+
+    <div class="alab-sortable-list">
+        <ol>
+            <li class="head" id="0"><a href="#" class="move hidden"></a>Lista pozycji</li>
+            {% for row in rows %}
+                <li data-id="{{ row.id }}">
+                    <a class="move btn btn-info"><span class="fas fa-fw fa-arrows-alt"></span></a>
+                    <span>{{ row.getName }}</span>
+                    {# {{ row.order }} {{ row.userFileExportRows[0].order|default('-') }} #}
+                    <div class="pull-right">
+                        <div class="switch switch-sm">
+                            <input type="checkbox" id="row_visible_{{ row.id }}"
+                                   {% if (row.userFileExportRows|length and row.userFileExportRows[0].isInclude) or (row.userFileExportRows|length == 0 and row.isInclude) %}checked{% endif %}>
+                            <label for="row_visible_{{ row.id }}"></label>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ prefetch(asset('js/alab.nestedSortable.min.js')) }}" nonce="{{ csp_nonce('script') }}"></script>
+{% endblock %}

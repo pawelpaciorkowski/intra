@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'partials/list-header.html.twig' with {'noFilter': true} %}
+
+    <p>
+        Projekt i wykonanie: Alab Laboratoria<br>
+        E-mail: <a href="mailto:intranet@alab.com.pl" data-toggle="tooltip" title="napisz e-mail">intranet@alab.com.pl</a><br>
+        <br>
+        <small>Data ostatniej aktualizacji {{ version.date }} ({{ version.description }})</small>
+    </p>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-md-8">
+            {% include 'partials/_form_errors.html.twig' %}
+
+            {{ form(form) }}
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <span class="fas fa-info fa-fw"></span> Informacje
+                </div>
+                <div class="panel-body">
+                    <p>
+                        Wypełnij formularz podając najwięcej szczegółów dotyczących Twojego problemu.
+                    </p>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
